@@ -680,7 +680,7 @@ svg {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(245, 240, 230, 0.94) 0%, rgba(245, 240, 230, 0.74) 42%, rgba(245, 240, 230, 0.06) 100%),
+    linear-gradient(90deg, rgba(245, 240, 230, 0.88) 0%, rgba(245, 240, 230, 0.56) 42%, rgba(245, 240, 230, 0.02) 100%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0));
 }
 

@@ -8,18 +8,22 @@ const slides = [
     category: "Outerwear",
     categoryCopy: "Oversized coats cut for movement.",
     image: "/assets/unusual-campaign.png",
+    categoryImage: "/assets/unusual-category-outerwear.png",
     alt: "Model wearing sculptural black outerwear with a red layer against a concrete wall.",
     position: "72% 44%",
+    categoryPosition: "70% 44%",
   },
   {
     label: "Motion Study",
     title: "Cut Against The Ordinary",
     copy: "Technical layers in motion, cut loose and built to interrupt routine.",
-    category: "Jersey",
-    categoryCopy: "Redline layers with graphic tension.",
+    category: "Jerseys",
+    categoryCopy: "Redline tops with graphic tension.",
     image: "/assets/unusual-campaign-02.png",
+    categoryImage: "/assets/unusual-category-jersey.png",
     alt: "Model walking through a concrete stairwell in black technical layers with a red underlayer.",
     position: "74% 48%",
+    categoryPosition: "42% 44%",
   },
   {
     label: "Red Signal",
@@ -28,8 +32,10 @@ const slides = [
     category: "Accessories",
     categoryCopy: "Hard details for soft rebellion.",
     image: "/assets/unusual-campaign-03.png",
+    categoryImage: "/assets/unusual-category-accessories.png",
     alt: "Model in black sculptural clothing and red gloves beside a steel panel with a red light shape.",
     position: "75% 50%",
+    categoryPosition: "76% 46%",
   },
 ];
 
@@ -82,10 +88,10 @@ function CategoryRail({ activeIndex, onSelectSlide }) {
           onClick={() => onSelectSlide(index)}
         >
           <img
-            src={slide.image}
+            src={slide.categoryImage ?? slide.image}
             alt=""
             aria-hidden="true"
-            style={{ objectPosition: slide.position }}
+            style={{ objectPosition: slide.categoryPosition ?? slide.position }}
           />
           <span className="category-shade" aria-hidden="true" />
           <span className="category-content">
