@@ -10,6 +10,8 @@
   --soft-line: rgba(18, 17, 15, 0.16);
   --white: #fffaf0;
   --max-width: 100vw;
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-snap: cubic-bezier(0.84, 0, 0.16, 1);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -59,6 +61,7 @@ svg {
   background:
     linear-gradient(180deg, transparent 0, transparent calc(100% - 86px), #f7f4eb calc(100% - 86px)),
     var(--paper);
+  animation: pageTint 900ms var(--ease-out) both;
 }
 
 .site-header {
@@ -74,6 +77,7 @@ svg {
   border-bottom: 1px solid var(--line);
   font-size: clamp(0.88rem, 0.62vw + 0.72rem, 1rem);
   font-weight: 650;
+  animation: headerReveal 760ms var(--ease-out) 120ms both;
 }
 
 .brand {
@@ -107,7 +111,7 @@ svg {
   content: "";
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 180ms ease;
+  transition: transform 220ms var(--ease-out);
 }
 
 .nav-links a:hover::after,
@@ -144,6 +148,11 @@ svg {
   content: "";
 }
 
+.bag-link:hover .bag-icon,
+.bag-link:focus-visible .bag-icon {
+  animation: bagTick 520ms var(--ease-snap);
+}
+
 .hero {
   position: relative;
   width: min(100% - 72px, 1760px);
@@ -167,6 +176,8 @@ svg {
   transform: scaleX(1.04);
   transform-origin: left center;
   text-rendering: geometricPrecision;
+  animation: wordmarkReveal 920ms var(--ease-out) 260ms both;
+  will-change: clip-path, opacity, translate;
 }
 
 .campaign-media {
@@ -178,7 +189,9 @@ svg {
   height: min(80svh, 810px);
   margin: 0;
   mask-image: linear-gradient(90deg, transparent 0%, transparent 44%, #000 58%, #000 100%);
+  animation: mediaReveal 1100ms var(--ease-out) 420ms both;
   pointer-events: none;
+  will-change: clip-path, filter, opacity;
 }
 
 .campaign-media::after {
@@ -196,6 +209,10 @@ svg {
   height: 100%;
   object-fit: cover;
   object-position: 72% 47%;
+  animation: mediaDrift 12s ease-in-out 1300ms infinite alternate;
+  transform: scale(1.015);
+  transform-origin: 68% 42%;
+  will-change: transform;
 }
 
 .season-mark {
@@ -210,12 +227,15 @@ svg {
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
   text-transform: uppercase;
   pointer-events: none;
+  animation: seasonReveal 780ms var(--ease-out) 980ms both;
 }
 
 .season-mark span {
   width: 1px;
   height: clamp(56px, 7vw, 126px);
   background: currentColor;
+  transform-origin: top;
+  animation: lineGrow 780ms var(--ease-out) 1080ms both;
 }
 
 .season-mark strong,
@@ -234,6 +254,10 @@ svg {
   width: 46px;
   height: 46px;
   color: var(--muted);
+  animation:
+    plusReveal 760ms var(--ease-out) 900ms both,
+    plusIdle 7s ease-in-out 1600ms infinite;
+  transform-origin: center;
 }
 
 .plus-mark span {
@@ -255,6 +279,22 @@ svg {
   width: min(530px, 42vw);
   margin-top: clamp(18px, 2vw, 34px);
   padding-bottom: 54px;
+}
+
+.hero-copy > * {
+  animation: copyReveal 760ms var(--ease-out) both;
+}
+
+.hero-copy p {
+  animation-delay: 520ms;
+}
+
+.hero-copy h1 {
+  animation-delay: 640ms;
+}
+
+.hero-actions {
+  animation-delay: 760ms;
 }
 
 .hero-copy p {
@@ -298,10 +338,11 @@ svg {
   line-height: 1;
   text-transform: uppercase;
   transition:
-    transform 180ms ease,
-    background 180ms ease,
-    color 180ms ease,
-    border-color 180ms ease;
+    transform 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
 }
 
 .button svg {
@@ -312,6 +353,7 @@ svg {
   stroke-width: 1.8;
   stroke-linecap: square;
   stroke-linejoin: miter;
+  transition: transform 240ms var(--ease-out);
 }
 
 .button-primary {
@@ -327,13 +369,19 @@ svg {
 
 .button:hover,
 .button:focus-visible {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.button:hover svg,
+.button:focus-visible svg {
+  transform: translateX(6px);
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
   border-color: var(--red-dark);
   background: var(--red-dark);
+  box-shadow: 0 18px 32px rgba(166, 31, 26, 0.22);
 }
 
 .button-secondary:hover,
@@ -351,6 +399,7 @@ svg {
   width: min(100% - 72px, 1760px);
   margin: 0 auto;
   padding-bottom: 18px;
+  animation: railReveal 820ms var(--ease-out) 940ms both;
 }
 
 .category-card {
@@ -360,6 +409,21 @@ svg {
   background: var(--paper-deep);
   color: var(--ink);
   isolation: isolate;
+  animation: cardReveal 760ms var(--ease-out) both;
+  animation-delay: calc(1060ms + (var(--card-index, 0) * 95ms));
+  transform-origin: bottom;
+}
+
+.category-card:nth-child(1) {
+  --card-index: 0;
+}
+
+.category-card:nth-child(2) {
+  --card-index: 1;
+}
+
+.category-card:nth-child(3) {
+  --card-index: 2;
 }
 
 .category-card img {
@@ -421,12 +485,168 @@ svg {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
+  transition: transform 260ms var(--ease-out);
 }
 
 .category-card:hover img,
 .category-card:focus-visible img {
   filter: saturate(1.08);
   transform: scale(1.08);
+}
+
+.category-card:hover .category-content svg,
+.category-card:focus-visible .category-content svg {
+  transform: translateX(8px);
+}
+
+@keyframes pageTint {
+  from {
+    background-color: #f8f5ed;
+  }
+  to {
+    background-color: var(--paper);
+  }
+}
+
+@keyframes headerReveal {
+  from {
+    opacity: 0;
+    translate: 0 -18px;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes wordmarkReveal {
+  from {
+    opacity: 0;
+    translate: -2vw 0;
+    clip-path: inset(0 100% 0 0);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes mediaReveal {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 0 72%);
+    filter: blur(12px) saturate(0.72);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+    filter: blur(0) saturate(1);
+  }
+}
+
+@keyframes mediaDrift {
+  from {
+    transform: scale(1.015) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.055) translate3d(-1.1%, -0.7%, 0);
+  }
+}
+
+@keyframes seasonReveal {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes lineGrow {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes plusReveal {
+  from {
+    opacity: 0;
+    rotate: -45deg;
+    scale: 0.72;
+  }
+  to {
+    opacity: 1;
+    rotate: 0deg;
+    scale: 1;
+  }
+}
+
+@keyframes plusIdle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  50% {
+    rotate: 90deg;
+  }
+}
+
+@keyframes copyReveal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes railReveal {
+  from {
+    opacity: 0;
+    translate: 0 34px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+    scale: 1 0.96;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1 1;
+  }
+}
+
+@keyframes bagTick {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  35% {
+    rotate: -8deg;
+  }
+  70% {
+    rotate: 5deg;
+  }
 }
 
 @media (max-width: 980px) {
@@ -536,7 +756,13 @@ svg {
   }
 
   .campaign-media::after {
-    height: 35%;
+    height: 62%;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(238, 234, 224, 0.86) 42%,
+      var(--paper) 74%
+    );
   }
 
   .campaign-media img {
@@ -549,8 +775,21 @@ svg {
     padding-bottom: 26px;
   }
 
+  .hero-copy::before {
+    position: absolute;
+    z-index: -1;
+    inset: -18px -14px -20px;
+    background: linear-gradient(
+      180deg,
+      rgba(238, 234, 224, 0.68),
+      var(--paper) 32%
+    );
+    content: "";
+  }
+
   .hero-copy h1 {
     max-width: 9ch;
+    line-height: 0.92;
   }
 
   .hero-actions {
