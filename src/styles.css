@@ -312,6 +312,7 @@ svg {
 
 .campaign-media::after {
   position: absolute;
+  z-index: 5;
   right: 0;
   bottom: 0;
   left: 0;
@@ -320,15 +321,65 @@ svg {
   content: "";
 }
 
-.campaign-media img {
+.campaign-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transform: scale(1.045) translateX(3%);
+  transition:
+    opacity 760ms var(--ease-out),
+    clip-path 920ms var(--ease-out),
+    transform 920ms var(--ease-out),
+    filter 760ms var(--ease-out);
+  filter: saturate(0.72) contrast(0.92);
+}
+
+.campaign-slide.is-active {
+  z-index: 2;
+  opacity: 1;
+  clip-path: inset(0);
+  transform: scale(1);
+  filter: saturate(1) contrast(1);
+}
+
+.hero[data-direction="previous"] .campaign-slide {
+  clip-path: inset(0 0 0 100%);
+  transform: scale(1.045) translateX(-3%);
+}
+
+.hero[data-direction="next"] .campaign-slide.is-active {
+  animation: campaignIncomingNext 980ms var(--ease-out) both;
+}
+
+.hero[data-direction="previous"] .campaign-slide.is-active {
+  animation: campaignIncomingPrevious 980ms var(--ease-out) both;
+}
+
+.campaign-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 72% 47%;
-  animation: mediaDrift 12s ease-in-out 1300ms infinite alternate;
   transform: scale(1.015);
   transform-origin: 68% 42%;
   will-change: transform;
+}
+
+.campaign-slide.is-active .campaign-image {
+  animation: mediaDrift 10s ease-in-out 900ms infinite alternate;
+}
+
+.motion-scan {
+  position: absolute;
+  z-index: 6;
+  top: 12%;
+  bottom: 26%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--red), transparent);
+  opacity: 0.42;
+  transform: translateX(-40vw);
+  animation: scanMove 5.8s var(--ease-snap) 1400ms infinite;
+  pointer-events: none;
 }
 
 .season-mark {
@@ -402,15 +453,19 @@ svg {
 }
 
 .hero-copy p {
-  animation-delay: 520ms;
+  animation-delay: 90ms;
 }
 
 .hero-copy h1 {
-  animation-delay: 640ms;
+  animation-delay: 160ms;
+}
+
+.hero-copy .slide-copy {
+  animation-delay: 220ms;
 }
 
 .hero-actions {
-  animation-delay: 760ms;
+  animation-delay: 300ms;
 }
 
 .hero-copy p {
@@ -420,6 +475,19 @@ svg {
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.hero-copy .slide-copy {
+  max-width: 29ch;
+  margin: clamp(14px, 1.1vw, 20px) 0 0;
+  color: rgba(18, 17, 15, 0.72);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: clamp(0.95rem, 0.54vw + 0.78rem, 1.12rem);
+  font-weight: 760;
+  line-height: 1.25;
+  text-transform: none;
 }
 
 .hero-copy h1 {
@@ -520,14 +588,39 @@ svg {
 
 .category-card {
   position: relative;
+  display: block;
   min-height: clamp(118px, 12vw, 190px);
+  width: 100%;
+  padding: 0;
+  border: 0;
   overflow: clip;
   background: var(--paper-deep);
   color: var(--ink);
+  cursor: pointer;
+  font: inherit;
   isolation: isolate;
+  text-align: left;
   animation: cardReveal 760ms var(--ease-out) both;
   animation-delay: calc(1060ms + (var(--card-index, 0) * 95ms));
   transform-origin: bottom;
+}
+
+.category-card::after {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--red);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms var(--ease-out);
+}
+
+.category-card[aria-pressed="true"]::after {
+  transform: scaleX(1);
 }
 
 .category-card:nth-child(1) {
@@ -615,6 +708,114 @@ svg {
   transform: translateX(8px);
 }
 
+.category-card:focus-visible,
+.carousel-controls > button:focus-visible,
+.slide-dots button:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+.carousel-controls {
+  position: absolute;
+  z-index: 24;
+  right: 0;
+  bottom: clamp(22px, 3.4vw, 56px);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  animation: controlReveal 720ms var(--ease-out) 1080ms both;
+}
+
+.carousel-controls > button,
+.slide-dots button {
+  appearance: none;
+  border-radius: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.carousel-controls > button {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(18, 17, 15, 0.72);
+  background: rgba(238, 234, 224, 0.66);
+  color: var(--ink);
+  transition:
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.carousel-controls > button:first-child svg {
+  transform: rotate(180deg);
+}
+
+.carousel-controls > button:hover,
+.carousel-controls > button:focus-visible {
+  background: var(--ink);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.carousel-controls svg {
+  width: 24px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.slide-dots {
+  display: inline-grid;
+  grid-auto-flow: column;
+  border: 1px solid rgba(18, 17, 15, 0.72);
+  background: rgba(255, 250, 240, 0.24);
+}
+
+.slide-dots button {
+  position: relative;
+  min-width: 54px;
+  height: 44px;
+  border: 0;
+  border-right: 1px solid rgba(18, 17, 15, 0.18);
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 950;
+  overflow: hidden;
+  transition:
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+}
+
+.slide-dots button:last-child {
+  border-right: 0;
+}
+
+.slide-dots button::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--red);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.slide-dots button.is-active {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.slide-dots button.is-active::after {
+  animation: slideProgress 6200ms linear both;
+}
+
 @keyframes pageTint {
   from {
     background-color: #f8f5ed;
@@ -671,6 +872,51 @@ svg {
   }
   to {
     transform: scale(1.055) translate3d(-1.1%, -0.7%, 0);
+  }
+}
+
+@keyframes campaignIncomingNext {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: scale(1.055) translateX(3%);
+    filter: blur(10px) saturate(0.76);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: scale(1);
+    filter: blur(0) saturate(1);
+  }
+}
+
+@keyframes campaignIncomingPrevious {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 0 100%);
+    transform: scale(1.055) translateX(-3%);
+    filter: blur(10px) saturate(0.76);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: scale(1);
+    filter: blur(0) saturate(1);
+  }
+}
+
+@keyframes scanMove {
+  0% {
+    opacity: 0;
+    transform: translateX(-8vw);
+  }
+  18%,
+  52% {
+    opacity: 0.42;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(72vw);
   }
 }
 
@@ -736,6 +982,26 @@ svg {
   to {
     opacity: 1;
     translate: 0 0;
+  }
+}
+
+@keyframes controlReveal {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes slideProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -829,8 +1095,26 @@ svg {
     height: 38%;
   }
 
-  .campaign-media img {
+  .campaign-image {
     object-position: 75% 50%;
+  }
+
+  .carousel-controls {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    display: flex;
+    width: min(100%, 420px);
+    margin: 0 0 18px;
+  }
+
+  .slide-dots {
+    flex: 1 1 auto;
+    grid-auto-columns: 1fr;
+  }
+
+  .slide-dots button {
+    min-width: 0;
   }
 
   .hero-copy {
@@ -888,8 +1172,8 @@ svg {
     right: auto;
     bottom: auto;
     width: calc(100% + 28px);
-    height: 44svh;
-    min-height: 330px;
+    height: 39svh;
+    min-height: 292px;
     margin: -8px -14px 0;
   }
 
@@ -903,13 +1187,13 @@ svg {
     );
   }
 
-  .campaign-media img {
+  .campaign-image {
     object-position: 72% 50%;
   }
 
   .hero-copy {
     width: 100%;
-    margin-top: -58px;
+    margin-top: 18px;
     padding-bottom: 26px;
   }
 
@@ -933,6 +1217,11 @@ svg {
   .hero-actions {
     display: grid;
     gap: 12px;
+  }
+
+  .carousel-controls {
+    width: 100%;
+    margin-top: 4px;
   }
 
   .button {
