@@ -30,18 +30,27 @@ function ArrowIcon() {
 function Header() {
   return (
     <header className="site-header" aria-label="Primary navigation">
-      <a className="brand" href="#top" aria-label="UNUSUAL home">
-        UNUSUAL
-      </a>
+      <div className="brand-lockup">
+        <a className="brand" href="#top" aria-label="UNUSUAL home">
+          <span className="brand-symbol" aria-hidden="true" />
+          <span className="brand-name">UNUSUAL</span>
+        </a>
+        <span className="drop-code">SS26</span>
+      </div>
       <nav className="nav-links" aria-label="Main menu">
         <a href="#shop">Shop</a>
         <a href="#archive">Archive</a>
         <a href="#journal">Journal</a>
       </nav>
-      <a className="bag-link" href="#bag" aria-label="Open shopping bag">
-        <span>Bag (0)</span>
-        <span className="bag-icon" aria-hidden="true" />
-      </a>
+      <div className="header-actions">
+        <a className="lookbook-link" href="#archive">
+          Lookbook
+        </a>
+        <a className="bag-link" href="#bag" aria-label="Open shopping bag">
+          <span>Bag (0)</span>
+          <span className="bag-icon" aria-hidden="true" />
+        </a>
+      </div>
     </header>
   );
 }
