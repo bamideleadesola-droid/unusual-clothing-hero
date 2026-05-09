@@ -39,6 +39,49 @@ const slides = [
   },
 ];
 
+const dropLooks = [
+  {
+    number: "01",
+    category: "Outerwear",
+    title: "Tactical Signal Coat",
+    copy: "A high-collar shell with oversized volume, red underlayer flashes, and bold UNUSUAL chest branding.",
+    image: "/assets/unusual-drop-outerwear.png",
+    alt: "Model in black tactical outerwear with UNUSUAL printed across the chest.",
+    position: "50% 30%",
+    notes: ["Water-repellent technical nylon", "Asymmetric storm flap", "Wide-leg utility trouser"],
+  },
+  {
+    number: "02",
+    category: "Jerseys",
+    title: "Redline Match Top",
+    copy: "A performance jersey pulled into street uniform mode with black cargo layers and clean front branding.",
+    image: "/assets/unusual-drop-jersey.png",
+    alt: "Model in red and black jersey with UNUSUAL printed across the chest.",
+    position: "48% 32%",
+    notes: ["Breathable mesh body", "Black side panel tension", "Open cropped shell"],
+  },
+  {
+    number: "03",
+    category: "Logo Knit",
+    title: "Washed Name Hoodie",
+    copy: "A softer logo piece with distressed texture, red gloves, and hardware-heavy denim proportions.",
+    image: "/assets/unusual-drop-knit.png",
+    alt: "Model in washed charcoal hoodie with UNUSUAL printed across the chest.",
+    position: "54% 32%",
+    notes: ["Washed charcoal cotton", "Oversized drop shoulder", "Stacked belt hardware"],
+  },
+  {
+    number: "04",
+    category: "Accessories",
+    title: "Utility Carry Kit",
+    copy: "Bag, gloves, belt, and eyewear in a sharp accessories look with the name stitched onto the carry piece.",
+    image: "/assets/unusual-drop-accessories.png",
+    alt: "Model in black technical layers with red gloves and a bag patched with UNUSUAL.",
+    position: "50% 34%",
+    notes: ["Crossbody utility pocket", "Gloss red leather gloves", "Matte black buckle system"],
+  },
+];
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 28 16" focusable="false">
@@ -73,6 +116,133 @@ function Header() {
         </a>
       </div>
     </header>
+  );
+}
+
+function DropIndex() {
+  const [activeLook, setActiveLook] = useState(0);
+  const lookRefs = useRef([]);
+  const active = dropLooks[activeLook];
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveLook(Number(entry.target.dataset.lookIndex));
+          }
+        });
+      },
+      { rootMargin: "-38% 0px -42% 0px", threshold: 0 },
+    );
+
+    lookRefs.current.forEach((node) => {
+      if (node) observer.observe(node);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const selectLook = (index) => {
+    setActiveLook(index);
+    lookRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  return (
+    <section className="drop-index" id="shop" aria-labelledby="drop-index-heading">
+      <div className="drop-frame">
+        <div className="drop-topline" aria-hidden="true">
+          <span>UNUSUAL INDEX</span>
+          <span>SS26 / 04 LOOKS</span>
+        </div>
+
+        <div className="drop-grid">
+          <aside className="drop-stage" aria-label="Active drop look">
+            <div className="drop-image-stack">
+              {dropLooks.map((look, index) => (
+                <img
+                  className={`drop-image ${activeLook === index ? "is-active" : ""}`}
+                  src={look.image}
+                  alt={activeLook === index ? look.alt : ""}
+                  key={look.image}
+                  style={{ objectPosition: look.position }}
+                />
+              ))}
+              <span className="drop-scan" aria-hidden="true" />
+              <span className="stage-count" aria-hidden="true">
+                {active.number} / 04
+              </span>
+            </div>
+            <div className="stage-caption">
+              <span>{active.category}</span>
+              <strong>{active.title}</strong>
+            </div>
+          </aside>
+
+          <div className="drop-content">
+            <div className="drop-heading-wrap">
+              <p>SS26 DROP</p>
+              <h2 id="drop-index-heading">Drop Index</h2>
+              <div className="look-jump" aria-label="Choose a look">
+                {dropLooks.map((look, index) => (
+                  <button
+                    type="button"
+                    className={activeLook === index ? "is-active" : ""}
+                    key={look.number}
+                    onClick={() => selectLook(index)}
+                    aria-label={`Show look ${look.number}: ${look.title}`}
+                  >
+                    <span>{look.number}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="look-step-list">
+              {dropLooks.map((look, index) => (
+                <article
+                  className={`look-step ${activeLook === index ? "is-active" : ""}`}
+                  data-look-index={index}
+                  key={look.number}
+                  ref={(node) => {
+                    lookRefs.current[index] = node;
+                  }}
+                >
+                  <div className="look-rule">
+                    <span>{look.number}</span>
+                    <em>{look.category}</em>
+                  </div>
+                  <h3>{look.title}</h3>
+                  <p>{look.copy}</p>
+                  <ul>
+                    {look.notes.map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                  </ul>
+                  <div className="look-actions">
+                    <a className="button button-primary" href="#bag">
+                      <span>Shop this look</span>
+                      <ArrowIcon />
+                    </a>
+                    <a className="button button-secondary" href="#archive">
+                      <span>View details</span>
+                      <ArrowIcon />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="drop-marquee" aria-hidden="true">
+          <span>UNUSUAL / OUTERWEAR / JERSEYS / LOGO KNIT / UTILITY / ACCESSORIES / </span>
+          <span>UNUSUAL / OUTERWEAR / JERSEYS / LOGO KNIT / UTILITY / ACCESSORIES / </span>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -255,5 +425,10 @@ function Hero() {
 }
 
 export default function App() {
-  return <Hero />;
+  return (
+    <>
+      <Hero />
+      <DropIndex />
+    </>
+  );
 }
