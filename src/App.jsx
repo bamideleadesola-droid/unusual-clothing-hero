@@ -82,6 +82,93 @@ const dropLooks = [
   },
 ];
 
+const releaseProducts = [
+  {
+    sku: "signal-coat",
+    number: "01",
+    name: "Tactical Signal Coat",
+    tag: "Outerwear",
+    price: "$268",
+    image: "/assets/unusual-drop-outerwear.png",
+    alt: "Black tactical coat with UNUSUAL branding worn by a model.",
+    position: "50% 30%",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Black", value: "#11110f" },
+      { name: "Signal red", value: "#d72e28" },
+    ],
+  },
+  {
+    sku: "redline-jersey",
+    number: "02",
+    name: "Redline Match Jersey",
+    tag: "Jerseys",
+    price: "$98",
+    image: "/assets/unusual-drop-jersey.png",
+    alt: "Red and black jersey with UNUSUAL branding worn by a model.",
+    position: "50% 30%",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Signal red", value: "#d72e28" },
+      { name: "Black", value: "#11110f" },
+    ],
+  },
+  {
+    sku: "name-hoodie",
+    number: "03",
+    name: "Washed Name Hoodie",
+    tag: "Logo Knit",
+    price: "$148",
+    image: "/assets/unusual-drop-knit.png",
+    alt: "Washed charcoal hoodie with UNUSUAL branding worn by a model.",
+    position: "54% 32%",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Washed charcoal", value: "#2f2f2b" },
+      { name: "Black", value: "#11110f" },
+    ],
+  },
+  {
+    sku: "utility-bag",
+    number: "04",
+    name: "Utility Crossbody Bag",
+    tag: "Accessories",
+    price: "$88",
+    image: "/assets/unusual-drop-accessories.png",
+    alt: "Black crossbody utility bag with UNUSUAL patch.",
+    position: "50% 32%",
+    sizes: ["One size"],
+    colors: [{ name: "Black", value: "#11110f" }],
+  },
+  {
+    sku: "red-gloves",
+    number: "05",
+    name: "Red Signal Gloves",
+    tag: "Accessories",
+    price: "$68",
+    image: "/assets/unusual-product-gloves.png",
+    alt: "Glossy deep red leather gloves styled with black technical clothing.",
+    position: "50% 48%",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [{ name: "Signal red", value: "#d72e28" }],
+  },
+  {
+    sku: "cargo-trouser",
+    number: "06",
+    name: "Wide Cargo Trouser",
+    tag: "Trousers",
+    price: "$158",
+    image: "/assets/unusual-product-trouser.png",
+    alt: "Oversized black wide cargo trousers with reflective side tape.",
+    position: "50% 46%",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Black", value: "#11110f" },
+      { name: "Graphite", value: "#383832" },
+    ],
+  },
+];
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 28 16" focusable="false">
@@ -116,6 +203,115 @@ function Header() {
         </a>
       </div>
     </header>
+  );
+}
+
+function ReleaseRack() {
+  const [selectedSizes, setSelectedSizes] = useState(() =>
+    Object.fromEntries(releaseProducts.map((product) => [product.sku, product.sizes[1] ?? product.sizes[0]])),
+  );
+  const [selectedColors, setSelectedColors] = useState(() =>
+    Object.fromEntries(releaseProducts.map((product) => [product.sku, product.colors[0].name])),
+  );
+  const [bagCount, setBagCount] = useState(0);
+  const [addedSku, setAddedSku] = useState("");
+
+  const selectSize = (sku, size) => {
+    setSelectedSizes((current) => ({ ...current, [sku]: size }));
+  };
+
+  const selectColor = (sku, color) => {
+    setSelectedColors((current) => ({ ...current, [sku]: color }));
+  };
+
+  const addToBag = (sku) => {
+    setBagCount((count) => count + 1);
+    setAddedSku(sku);
+
+    window.setTimeout(() => {
+      setAddedSku((current) => (current === sku ? "" : current));
+    }, 1700);
+  };
+
+  return (
+    <section className="release-rack" aria-labelledby="release-rack-heading">
+      <div className="release-bg-word" aria-hidden="true">
+        UNUSUAL
+      </div>
+      <div className="release-frame">
+        <div className="release-head">
+          <div>
+            <h2 id="release-rack-heading">Release Rack</h2>
+            <p>Pieces built for repeat wear, late exits, and visible refusal.</p>
+          </div>
+          <div className="release-meta" aria-label="Release rack status">
+            <span>SS26 / New Arrivals</span>
+            <strong>{String(bagCount).padStart(2, "0")} in bag</strong>
+          </div>
+        </div>
+
+        <div className="rack-scroll" aria-label="Shop release products">
+          {releaseProducts.map((product, index) => (
+            <article className="product-card" key={product.sku} style={{ "--product-index": index }}>
+              <div className="product-media">
+                <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                <span className="product-quick">
+                  <span>Quick view</span>
+                  <ArrowIcon />
+                </span>
+              </div>
+
+              <div className="product-info">
+                <div className="product-line">
+                  <span>{product.number}</span>
+                  <em>{product.tag}</em>
+                </div>
+                <h3>{product.name}</h3>
+                <strong>{product.price}</strong>
+
+                <div
+                  className={`product-options ${product.sizes.length === 1 ? "is-single" : ""}`}
+                  aria-label={`${product.name} size options`}
+                >
+                  {product.sizes.map((size) => (
+                    <button
+                      type="button"
+                      className={selectedSizes[product.sku] === size ? "is-selected" : ""}
+                      key={size}
+                      onClick={() => selectSize(product.sku, size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="product-swatches" aria-label={`${product.name} color options`}>
+                  {product.colors.map((color) => (
+                    <button
+                      type="button"
+                      className={selectedColors[product.sku] === color.name ? "is-selected" : ""}
+                      key={color.name}
+                      onClick={() => selectColor(product.sku, color.name)}
+                      aria-label={color.name}
+                      style={{ "--swatch": color.value }}
+                    />
+                  ))}
+                </div>
+
+                <button className="button product-add" type="button" onClick={() => addToBag(product.sku)}>
+                  <span>{addedSku === product.sku ? "Added" : "Add to bag"}</span>
+                  <ArrowIcon />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="rack-progress" aria-hidden="true">
+          <span />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -429,6 +625,7 @@ export default function App() {
     <>
       <Hero />
       <DropIndex />
+      <ReleaseRack />
     </>
   );
 }
