@@ -169,6 +169,24 @@ const releaseProducts = [
   },
 ];
 
+const manifestoLines = [
+  {
+    code: "01",
+    title: "Cut wide",
+    copy: "Room for late trains, fast turns, and silhouettes that do not ask permission.",
+  },
+  {
+    code: "02",
+    title: "Move sharp",
+    copy: "Technical layers, red signals, and utility details tuned for the city after dark.",
+  },
+  {
+    code: "03",
+    title: "Stay unnamed",
+    copy: "No borrowed uniform, no soft compromise, no need to explain the shape.",
+  },
+];
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 28 16" focusable="false">
@@ -310,6 +328,87 @@ function ReleaseRack() {
         <div className="rack-progress" aria-hidden="true">
           <span />
         </div>
+      </div>
+    </section>
+  );
+}
+
+function UnusualCode() {
+  const [email, setEmail] = useState("");
+  const [isJoined, setIsJoined] = useState(false);
+
+  const handleSignup = (event) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    setIsJoined(true);
+  };
+
+  return (
+    <section className="unusual-code" id="journal" aria-labelledby="unusual-code-heading">
+      <span className="code-noise" aria-hidden="true" />
+      <div className="code-bg-word" aria-hidden="true">
+        UNUSUAL
+      </div>
+
+      <div className="code-frame">
+        <div className="code-grid">
+          <div className="code-copy">
+            <span className="code-mark" aria-hidden="true">
+              U/SS26
+            </span>
+            <h2 id="unusual-code-heading">Clothing for people who refuse the default setting.</h2>
+            <p>
+              A private signal for people building their own uniform: oversized, technical, direct, and built to
+              be seen one piece at a time.
+            </p>
+          </div>
+
+          <div className="code-panel">
+            <ol className="manifesto-list" aria-label="UNUSUAL manifesto">
+              {manifestoLines.map((line) => (
+                <li key={line.code}>
+                  <span>{line.code}</span>
+                  <div>
+                    <h3>{line.title}</h3>
+                    <p>{line.copy}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <form className={`code-signup ${isJoined ? "is-complete" : ""}`} onSubmit={handleSignup}>
+              <label htmlFor="release-email">Private Release Access</label>
+              <div className="signup-row">
+                <input
+                  id="release-email"
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setIsJoined(false);
+                  }}
+                  required
+                />
+                <button type="submit">
+                  <span>{isJoined ? "Joined" : "Join the list"}</span>
+                  <ArrowIcon />
+                </button>
+              </div>
+              <p aria-live="polite">
+                {isJoined
+                  ? "You're on the list. Watch for the next signal."
+                  : "Early access to drops, lookbooks, and private releases."}
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div className="code-ticker" aria-hidden="true">
+        <span>NO DEFAULT / NO UNIFORM / NO PERMISSION / </span>
+        <span>NO DEFAULT / NO UNIFORM / NO PERMISSION / </span>
       </div>
     </section>
   );
@@ -626,6 +725,7 @@ export default function App() {
       <Hero />
       <DropIndex />
       <ReleaseRack />
+      <UnusualCode />
     </>
   );
 }

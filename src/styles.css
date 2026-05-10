@@ -740,7 +740,9 @@ svg {
 .look-jump button:focus-visible,
 .product-options button:focus-visible,
 .product-swatches button:focus-visible,
-.product-add:focus-visible {
+.product-add:focus-visible,
+.code-signup input:focus-visible,
+.code-signup button:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 3px;
 }
@@ -1467,6 +1469,342 @@ svg {
   animation: rackPulse 3.2s var(--ease-snap) infinite;
 }
 
+.unusual-code {
+  position: relative;
+  min-height: 92svh;
+  overflow: clip;
+  padding: 6rem 0 0;
+  border-top: 1px solid rgba(255, 250, 240, 0.16);
+  background:
+    linear-gradient(180deg, rgba(219, 46, 40, 0.08), transparent 28%),
+    linear-gradient(90deg, rgba(255, 250, 240, 0.035) 1px, transparent 1px),
+    #080806;
+  background-size:
+    auto,
+    88px 100%,
+    auto;
+  color: var(--white);
+  isolation: isolate;
+}
+
+.unusual-code::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 250, 240, 0.055) 0 1px,
+      transparent 1px 7px
+    ),
+    linear-gradient(120deg, rgba(219, 46, 40, 0.22), transparent 22%, transparent 72%, rgba(255, 250, 240, 0.08));
+  content: "";
+  opacity: 0.44;
+  pointer-events: none;
+}
+
+.unusual-code::after {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(219, 46, 40, 0.94), transparent);
+  box-shadow: 0 0 28px rgba(219, 46, 40, 0.72);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  animation: codeScan 5.6s var(--ease-snap) 800ms infinite;
+}
+
+.code-noise {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 250, 240, 0.09), transparent 1px),
+    radial-gradient(circle at 74% 62%, rgba(219, 46, 40, 0.14), transparent 1px);
+  background-size:
+    13px 13px,
+    17px 17px;
+  mix-blend-mode: screen;
+  opacity: 0.2;
+  pointer-events: none;
+  animation: codeStatic 6s steps(2, end) infinite;
+}
+
+.code-bg-word {
+  position: absolute;
+  z-index: -1;
+  right: -5rem;
+  bottom: 3.4rem;
+  color: rgba(255, 250, 240, 0.045);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 16rem;
+  font-weight: 950;
+  line-height: 0.8;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: codeWordFloat 9s ease-in-out infinite alternate;
+}
+
+.code-frame {
+  width: min(100% - 72px, 1760px);
+  margin: 0 auto;
+}
+
+.code-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.72fr);
+  gap: clamp(3rem, 7vw, 8rem);
+  align-items: end;
+  min-height: calc(92svh - 10rem);
+  padding-bottom: 5rem;
+}
+
+.code-copy {
+  position: relative;
+  max-width: 860px;
+  animation: codeCopyReveal 860ms var(--ease-out) both;
+}
+
+.code-mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding-left: 14px;
+  border-left: 4px solid var(--red);
+  color: var(--red);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.code-copy h2 {
+  max-width: 10ch;
+  margin: 1.6rem 0 0;
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 8.6rem;
+  font-weight: 950;
+  line-height: 0.84;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.code-copy > p {
+  max-width: 46ch;
+  margin: 1.8rem 0 0;
+  color: rgba(255, 250, 240, 0.72);
+  font-size: 1.08rem;
+  font-weight: 760;
+  line-height: 1.28;
+}
+
+.code-panel {
+  position: relative;
+  display: grid;
+  align-self: end;
+  border-top: 1px solid rgba(255, 250, 240, 0.74);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.74);
+  animation: codePanelReveal 880ms var(--ease-out) 120ms both;
+}
+
+.code-panel::before {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  width: 34%;
+  height: 4px;
+  background: var(--red);
+  content: "";
+  transform-origin: right;
+  animation: codeRulePulse 2.8s var(--ease-snap) infinite;
+}
+
+.manifesto-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.manifesto-list li {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  gap: 1.35rem;
+  padding: 1.45rem 0;
+  border-bottom: 1px solid rgba(255, 250, 240, 0.18);
+  transform: translateX(0);
+  transition:
+    border-color 240ms var(--ease-out),
+    color 240ms var(--ease-out),
+    transform 240ms var(--ease-out);
+}
+
+.manifesto-list li:last-child {
+  border-bottom: 0;
+}
+
+.manifesto-list li:hover {
+  border-color: rgba(219, 46, 40, 0.68);
+  color: #ffffff;
+  transform: translateX(10px);
+}
+
+.manifesto-list span {
+  color: var(--red);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 2.4rem;
+  line-height: 0.82;
+}
+
+.manifesto-list h3 {
+  margin: 0;
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 2.4rem;
+  font-weight: 950;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.manifesto-list p {
+  max-width: 42ch;
+  margin: 0.7rem 0 0;
+  color: rgba(255, 250, 240, 0.68);
+  font-size: 0.92rem;
+  font-weight: 760;
+  line-height: 1.28;
+}
+
+.code-signup {
+  display: grid;
+  gap: 1rem;
+  margin: 1.6rem 0 0;
+  padding: 1.15rem;
+  border: 1px solid rgba(255, 250, 240, 0.56);
+  background: rgba(255, 250, 240, 0.035);
+  transition:
+    border-color 260ms var(--ease-out),
+    background 260ms var(--ease-out);
+}
+
+.code-signup.is-complete {
+  border-color: rgba(219, 46, 40, 0.92);
+  background: rgba(219, 46, 40, 0.1);
+}
+
+.code-signup label {
+  color: rgba(255, 250, 240, 0.78);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.signup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 54px;
+  border: 1px solid rgba(255, 250, 240, 0.42);
+}
+
+.code-signup input,
+.code-signup button {
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  line-height: 1;
+}
+
+.code-signup input {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 1rem;
+  background: transparent;
+  color: var(--white);
+  font-size: 0.92rem;
+  font-weight: 840;
+  text-transform: uppercase;
+}
+
+.code-signup input::placeholder {
+  color: rgba(255, 250, 240, 0.4);
+}
+
+.code-signup button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.4rem;
+  min-width: 178px;
+  padding: 0 1rem;
+  border-left: 1px solid rgba(255, 250, 240, 0.42);
+  background: var(--red);
+  color: var(--white);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.code-signup button:hover,
+.code-signup button:focus-visible {
+  background: var(--red-dark);
+  transform: translateY(-2px);
+}
+
+.code-signup button svg {
+  width: 24px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  transition: transform 240ms var(--ease-out);
+}
+
+.code-signup button:hover svg,
+.code-signup button:focus-visible svg {
+  transform: translateX(5px);
+}
+
+.code-signup > p {
+  min-height: 1.3em;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.6);
+  font-size: 0.82rem;
+  font-weight: 760;
+  line-height: 1.3;
+}
+
+.code-ticker {
+  display: flex;
+  gap: 30px;
+  overflow: hidden;
+  padding: 1.1rem 0 1.4rem;
+  border-top: 1px solid rgba(255, 250, 240, 0.16);
+  color: rgba(255, 250, 240, 0.17);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: 5.4rem;
+  line-height: 0.86;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.code-ticker span {
+  flex: 0 0 auto;
+  animation: codeTicker 30s linear infinite;
+}
+
 @keyframes pageTint {
   from {
     background-color: #f8f5ed;
@@ -1731,6 +2069,89 @@ svg {
   }
 }
 
+@keyframes codeCopyReveal {
+  from {
+    opacity: 0;
+    translate: -28px 0;
+    clip-path: inset(0 18% 0 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes codePanelReveal {
+  from {
+    opacity: 0;
+    translate: 34px 0;
+    clip-path: inset(0 0 0 18%);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes codeScan {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  18%,
+  58% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(82svh);
+  }
+}
+
+@keyframes codeRulePulse {
+  0%,
+  100% {
+    transform: scaleX(0.68);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes codeWordFloat {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-1.4rem, -0.8rem, 0);
+  }
+}
+
+@keyframes codeStatic {
+  0%,
+  100% {
+    background-position:
+      0 0,
+      0 0;
+  }
+  50% {
+    background-position:
+      11px 5px,
+      -8px 12px;
+  }
+}
+
+@keyframes codeTicker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - 30px));
+  }
+}
+
 @media (max-width: 980px) {
   .hero-shell {
     background: var(--paper);
@@ -1903,6 +2324,41 @@ svg {
   .rack-scroll {
     grid-auto-columns: minmax(290px, 42vw);
   }
+
+  .unusual-code {
+    min-height: auto;
+    padding-top: 4.5rem;
+  }
+
+  .code-frame {
+    width: min(100% - 36px, 760px);
+  }
+
+  .code-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    min-height: auto;
+    padding-bottom: 4rem;
+  }
+
+  .code-copy h2 {
+    max-width: 9ch;
+    font-size: 5.7rem;
+  }
+
+  .code-panel {
+    align-self: stretch;
+  }
+
+  .code-bg-word {
+    right: -8rem;
+    bottom: 6rem;
+    font-size: 10rem;
+  }
+
+  .code-ticker {
+    font-size: 3.7rem;
+  }
 }
 
 @media (max-width: 560px) {
@@ -2074,6 +2530,62 @@ svg {
 
   .product-media {
     min-height: 360px;
+  }
+
+  .unusual-code {
+    padding-top: 3.4rem;
+  }
+
+  .code-frame {
+    width: min(100% - 28px, 460px);
+  }
+
+  .code-grid {
+    gap: 2.3rem;
+    padding-bottom: 3rem;
+  }
+
+  .code-mark {
+    min-height: 30px;
+    font-size: 0.94rem;
+  }
+
+  .code-copy h2 {
+    max-width: 8.5ch;
+    margin-top: 1.25rem;
+    font-size: 3.55rem;
+    line-height: 0.9;
+  }
+
+  .code-copy > p {
+    margin-top: 1.25rem;
+    font-size: 0.98rem;
+  }
+
+  .manifesto-list li {
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.2rem 0;
+  }
+
+  .manifesto-list span,
+  .manifesto-list h3 {
+    font-size: 1.72rem;
+  }
+
+  .signup-row {
+    grid-template-columns: 1fr;
+  }
+
+  .code-signup button {
+    min-width: 0;
+    min-height: 50px;
+    border-top: 1px solid rgba(255, 250, 240, 0.42);
+    border-left: 0;
+  }
+
+  .code-ticker {
+    font-size: 2.85rem;
   }
 }
 
