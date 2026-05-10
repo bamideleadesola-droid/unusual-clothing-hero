@@ -1473,12 +1473,12 @@ svg {
   position: relative;
   min-height: 92svh;
   overflow: clip;
-  padding: 6rem 0 0;
+  padding: 5.2rem 0 0;
   border-top: 1px solid rgba(255, 250, 240, 0.16);
   background:
-    linear-gradient(180deg, rgba(219, 46, 40, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(219, 46, 40, 0.07), transparent 26%),
     linear-gradient(90deg, rgba(255, 250, 240, 0.035) 1px, transparent 1px),
-    #080806;
+    #050504;
   background-size:
     auto,
     88px 100%,
@@ -1492,11 +1492,7 @@ svg {
   inset: 0;
   z-index: -1;
   background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(255, 250, 240, 0.055) 0 1px,
-      transparent 1px 7px
-    ),
+    repeating-linear-gradient(0deg, rgba(255, 250, 240, 0.04) 0 1px, transparent 1px 6px),
     linear-gradient(120deg, rgba(219, 46, 40, 0.22), transparent 22%, transparent 72%, rgba(255, 250, 240, 0.08));
   content: "";
   opacity: 0.44;
@@ -1557,10 +1553,10 @@ svg {
 
 .code-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.72fr);
-  gap: clamp(3rem, 7vw, 8rem);
-  align-items: end;
-  min-height: calc(92svh - 10rem);
+  grid-template-columns: minmax(0, 1.06fr) minmax(560px, 0.9fr);
+  gap: clamp(4rem, 8vw, 9rem);
+  align-items: center;
+  min-height: calc(92svh - 9rem);
   padding-bottom: 5rem;
 }
 
@@ -1570,27 +1566,48 @@ svg {
   animation: codeCopyReveal 860ms var(--ease-out) both;
 }
 
-.code-mark {
+.code-ruler {
+  display: grid;
+  grid-template-columns: auto minmax(60px, 1fr) auto;
+  align-items: center;
+  gap: 1.1rem;
+  max-width: 760px;
+  color: var(--red);
+  font-family:
+    "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 950;
+  line-height: 1.1;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.code-ruler::after {
+  height: 1px;
+  background: rgba(255, 250, 240, 0.68);
+  content: "";
+}
+
+.code-ruler span,
+.code-ruler em {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding-left: 14px;
-  border-left: 4px solid var(--red);
-  color: var(--red);
-  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: 1.08rem;
-  font-weight: 950;
-  line-height: 1;
-  text-transform: uppercase;
+  min-height: 30px;
+}
+
+.code-ruler em {
+  color: rgba(255, 250, 240, 0.74);
+  font-style: normal;
+  letter-spacing: 0.12em;
 }
 
 .code-copy h2 {
   max-width: 10ch;
-  margin: 1.6rem 0 0;
+  margin: 1.35rem 0 0;
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: 8.6rem;
+  font-size: clamp(5.8rem, 7.6vw, 10.8rem);
   font-weight: 950;
-  line-height: 0.84;
+  line-height: 0.82;
   text-transform: uppercase;
   text-wrap: balance;
 }
@@ -1607,9 +1624,9 @@ svg {
 .code-panel {
   position: relative;
   display: grid;
-  align-self: end;
-  border-top: 1px solid rgba(255, 250, 240, 0.74);
-  border-bottom: 1px solid rgba(255, 250, 240, 0.74);
+  align-self: center;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255, 250, 240, 0.66);
   animation: codePanelReveal 880ms var(--ease-out) 120ms both;
 }
 
@@ -1617,8 +1634,8 @@ svg {
   position: absolute;
   top: -1px;
   right: 0;
-  width: 34%;
-  height: 4px;
+  width: 28%;
+  height: 2px;
   background: var(--red);
   content: "";
   transform-origin: right;
@@ -1634,10 +1651,11 @@ svg {
 
 .manifesto-list li {
   display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr);
+  grid-template-columns: 3.6rem minmax(64px, 0.34fr) minmax(190px, 0.72fr) minmax(150px, 0.65fr);
   gap: 1.35rem;
-  padding: 1.45rem 0;
-  border-bottom: 1px solid rgba(255, 250, 240, 0.18);
+  align-items: center;
+  padding: clamp(1.4rem, 2.2vw, 2.15rem) 0;
+  border-bottom: 1px solid rgba(255, 250, 240, 0.22);
   transform: translateX(0);
   transition:
     border-color 240ms var(--ease-out),
@@ -1646,7 +1664,7 @@ svg {
 }
 
 .manifesto-list li:last-child {
-  border-bottom: 0;
+  border-bottom: 1px solid rgba(255, 250, 240, 0.22);
 }
 
 .manifesto-list li:hover {
@@ -1658,58 +1676,77 @@ svg {
 .manifesto-list span {
   color: var(--red);
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: 2.4rem;
+  font-size: clamp(2rem, 2.1vw, 3rem);
   line-height: 0.82;
+}
+
+.manifesto-list i {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 250, 240, 0.44);
 }
 
 .manifesto-list h3 {
   margin: 0;
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: 2.4rem;
+  font-size: clamp(2.3rem, 3.2vw, 4.8rem);
   font-weight: 950;
   line-height: 0.9;
   text-transform: uppercase;
 }
 
 .manifesto-list p {
-  max-width: 42ch;
-  margin: 0.7rem 0 0;
+  max-width: 18ch;
+  margin: 0;
   color: rgba(255, 250, 240, 0.68);
-  font-size: 0.92rem;
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: clamp(0.78rem, 0.58vw, 0.94rem);
   font-weight: 760;
-  line-height: 1.28;
+  line-height: 1.35;
+  text-transform: uppercase;
 }
 
 .code-signup {
   display: grid;
   gap: 1rem;
-  margin: 1.6rem 0 0;
-  padding: 1.15rem;
-  border: 1px solid rgba(255, 250, 240, 0.56);
-  background: rgba(255, 250, 240, 0.035);
+  margin: clamp(1.8rem, 2.8vw, 3rem) 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   transition:
     border-color 260ms var(--ease-out),
     background 260ms var(--ease-out);
 }
 
 .code-signup.is-complete {
-  border-color: rgba(219, 46, 40, 0.92);
-  background: rgba(219, 46, 40, 0.1);
+  background: transparent;
 }
 
 .code-signup label {
-  color: rgba(255, 250, 240, 0.78);
+  color: var(--red);
+  font-family:
+    "Courier New", ui-monospace, monospace;
   font-size: 0.78rem;
   font-weight: 950;
   line-height: 1;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .signup-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: 54px;
-  border: 1px solid rgba(255, 250, 240, 0.42);
+  grid-template-columns: minmax(0, 1fr) minmax(238px, 0.45fr);
+  min-height: 70px;
+  border: 1px solid rgba(255, 250, 240, 0.74);
+  background: rgba(5, 5, 4, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(219, 46, 40, 0);
+  transition: box-shadow 260ms var(--ease-out);
+}
+
+.code-signup.is-complete .signup-row {
+  box-shadow: inset 0 0 0 1px rgba(219, 46, 40, 0.72);
 }
 
 .code-signup input,
@@ -1723,12 +1760,15 @@ svg {
 .code-signup input {
   width: 100%;
   min-width: 0;
-  min-height: 52px;
-  padding: 0 1rem;
+  min-height: 68px;
+  padding: 0 1.25rem;
   background: transparent;
   color: var(--white);
-  font-size: 0.92rem;
-  font-weight: 840;
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.96rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
@@ -1740,14 +1780,14 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.4rem;
-  min-width: 178px;
-  padding: 0 1rem;
-  border-left: 1px solid rgba(255, 250, 240, 0.42);
+  gap: 1.2rem;
+  min-width: 0;
+  padding: 0 1.25rem;
+  border-left: 1px solid rgba(255, 250, 240, 0.74);
   background: var(--red);
   color: var(--white);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: clamp(0.76rem, 0.56vw, 0.9rem);
   font-weight: 950;
   text-transform: uppercase;
   transition:
@@ -1780,10 +1820,14 @@ svg {
 .code-signup > p {
   min-height: 1.3em;
   margin: 0;
-  color: rgba(255, 250, 240, 0.6);
-  font-size: 0.82rem;
-  font-weight: 760;
+  color: rgba(255, 250, 240, 0.58);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   line-height: 1.3;
+  text-transform: uppercase;
 }
 
 .code-ticker {
@@ -2350,6 +2394,10 @@ svg {
     align-self: stretch;
   }
 
+  .manifesto-list li {
+    grid-template-columns: 3.4rem minmax(54px, 0.22fr) minmax(180px, 0.76fr) minmax(180px, 0.66fr);
+  }
+
   .code-bg-word {
     right: -8rem;
     bottom: 6rem;
@@ -2545,9 +2593,23 @@ svg {
     padding-bottom: 3rem;
   }
 
-  .code-mark {
+  .code-ruler {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .code-ruler::after {
+    order: 3;
+    width: 100%;
+  }
+
+  .code-ruler em {
+    display: none;
+  }
+
+  .code-ruler span {
     min-height: 30px;
-    font-size: 0.94rem;
   }
 
   .code-copy h2 {
@@ -2563,25 +2625,55 @@ svg {
   }
 
   .manifesto-list li {
-    grid-template-columns: 3.2rem minmax(0, 1fr);
-    gap: 1rem;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.7rem 1rem;
     padding: 1.2rem 0;
   }
 
-  .manifesto-list span,
+  .manifesto-list i {
+    display: none;
+  }
+
+  .manifesto-list span {
+    grid-row: span 2;
+    font-size: 1.72rem;
+  }
+
   .manifesto-list h3 {
     font-size: 1.72rem;
   }
 
+  .manifesto-list p {
+    max-width: 24ch;
+    font-size: 0.78rem;
+  }
+
+  .code-signup {
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .code-signup label {
+    font-size: 0.74rem;
+  }
+
   .signup-row {
     grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .code-signup button {
     min-width: 0;
-    min-height: 50px;
-    border-top: 1px solid rgba(255, 250, 240, 0.42);
+    min-height: 56px;
+    padding-inline: 1rem;
+    border-top: 1px solid rgba(255, 250, 240, 0.74);
     border-left: 0;
+  }
+
+  .code-signup input {
+    min-height: 58px;
+    font-size: 0.86rem;
+    letter-spacing: 0.12em;
   }
 
   .code-ticker {

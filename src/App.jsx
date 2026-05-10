@@ -353,9 +353,10 @@ function UnusualCode() {
       <div className="code-frame">
         <div className="code-grid">
           <div className="code-copy">
-            <span className="code-mark" aria-hidden="true">
-              U/SS26
-            </span>
+            <div className="code-ruler" aria-hidden="true">
+              <span>&gt;_ UNUSUAL CODE</span>
+              <em>/// MANIFESTO</em>
+            </div>
             <h2 id="unusual-code-heading">Clothing for people who refuse the default setting.</h2>
             <p>
               A private signal for people building their own uniform: oversized, technical, direct, and built to
@@ -368,22 +369,21 @@ function UnusualCode() {
               {manifestoLines.map((line) => (
                 <li key={line.code}>
                   <span>{line.code}</span>
-                  <div>
-                    <h3>{line.title}</h3>
-                    <p>{line.copy}</p>
-                  </div>
+                  <i aria-hidden="true" />
+                  <h3>{line.title}</h3>
+                  <p>{line.copy}</p>
                 </li>
               ))}
             </ol>
 
             <form className={`code-signup ${isJoined ? "is-complete" : ""}`} onSubmit={handleSignup}>
-              <label htmlFor="release-email">Private Release Access</label>
+              <label htmlFor="release-email">Private releases. No noise.</label>
               <div className="signup-row">
                 <input
                   id="release-email"
                   type="email"
                   name="email"
-                  placeholder="Enter your email"
+                  placeholder=">_ Enter email"
                   value={email}
                   onChange={(event) => {
                     setEmail(event.target.value);
@@ -392,14 +392,14 @@ function UnusualCode() {
                   required
                 />
                 <button type="submit">
-                  <span>{isJoined ? "Joined" : "Join the list"}</span>
+                  <span>{isJoined ? "Waitlist joined" : "Join the waiting list"}</span>
                   <ArrowIcon />
                 </button>
               </div>
               <p aria-live="polite">
                 {isJoined
                   ? "You're on the list. Watch for the next signal."
-                  : "Early access to drops, lookbooks, and private releases."}
+                  : "No spam. No stories. Just drops."}
               </p>
             </form>
           </div>
