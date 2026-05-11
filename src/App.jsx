@@ -303,6 +303,66 @@ const lookbookStories = [
   },
 ];
 
+const brandPrinciples = [
+  {
+    number: "01",
+    title: "Cut wide",
+    copy: "Volume is the first language of the brand: room through the body, strong shoulders, and shapes that hold their own in motion.",
+    image: "/assets/unusual-drop-outerwear.png",
+    alt: "Model in oversized black UNUSUAL outerwear against concrete.",
+    position: "50% 30%",
+  },
+  {
+    number: "02",
+    title: "Move sharp",
+    copy: "Technical layers, red signals, and hard accessories make each piece feel ready for the city after dark.",
+    image: "/assets/unusual-drop-jersey.png",
+    alt: "Model in red and black UNUSUAL jersey styled with black layers.",
+    position: "48% 32%",
+  },
+  {
+    number: "03",
+    title: "Stay unnamed",
+    copy: "The logo is direct, but the wearer stays in control. No borrowed uniform, no loud explanation, no default setting.",
+    image: "/assets/unusual-drop-accessories.png",
+    alt: "Model wearing black technical layers with a branded UNUSUAL utility bag.",
+    position: "50% 34%",
+  },
+];
+
+const brandMaterials = [
+  {
+    title: "Technical shells",
+    copy: "Water-repellent nylon, structured collars, and city-weight layers built around movement.",
+  },
+  {
+    title: "Washed cotton",
+    copy: "Heavy jersey and charcoal washes that feel broken-in without losing shape.",
+  },
+  {
+    title: "Signal details",
+    copy: "Red gloves, reflective tape, matte buckles, and branding placed where the fit needs tension.",
+  },
+];
+
+const brandReleaseModel = [
+  {
+    code: "PRIVATE_001",
+    title: "Small runs",
+    copy: "Pieces arrive in controlled quantities so the drop keeps its shape and does not become background noise.",
+  },
+  {
+    code: "NO_NOISE",
+    title: "Direct signal",
+    copy: "No endless campaign talk. The list gets the drop window, sizing notes, and access first.",
+  },
+  {
+    code: "SS26",
+    title: "One direction",
+    copy: "Outerwear, jersey, knit, trousers, and accessories are designed to work as one modular uniform.",
+  },
+];
+
 const shopCategories = ["All", "Outerwear", "Jerseys", "Logo Knit", "Trousers", "Accessories"];
 
 const productDetails = {
@@ -419,6 +479,7 @@ function Header({ page = "home", cartCount = 0 }) {
   const waitlistHref = page === "home" ? "#journal" : "/#journal";
   const isShopCurrent = page === "shop" || page === "product";
   const isLookbookCurrent = page === "lookbook";
+  const isBrandCurrent = page === "brand";
 
   return (
     <header className="site-header" aria-label="Primary navigation">
@@ -436,7 +497,9 @@ function Header({ page = "home", cartCount = 0 }) {
         <a href={lookbookHref} aria-current={isLookbookCurrent ? "page" : undefined}>
           Lookbook
         </a>
-        <a href={waitlistHref}>Waitlist</a>
+        <a href="/brand" aria-current={isBrandCurrent ? "page" : undefined}>
+          Brand
+        </a>
       </nav>
       <div className="header-actions">
         <a className="lookbook-link" href={waitlistHref}>
@@ -2182,6 +2245,170 @@ function LookbookPage({ cartCount = 0 }) {
   );
 }
 
+function BrandPage({ cartCount = 0 }) {
+  const [activePrinciple, setActivePrinciple] = useState(0);
+  const [email, setEmail] = useState("");
+  const [isJoined, setIsJoined] = useState(false);
+  const currentPrinciple = brandPrinciples[activePrinciple];
+
+  const handleBrandJoin = (event) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    setIsJoined(true);
+  };
+
+  return (
+    <div className="brand-shell" id="top">
+      <Header page="brand" cartCount={cartCount} />
+
+      <main className="brand-page" aria-labelledby="brand-heading">
+        <section className="brand-hero">
+          <div className="brand-hero-copy">
+            <h1 id="brand-heading">Unusual</h1>
+            <p>
+              A clothing brand for people who refuse the default setting: oversized silhouettes, technical restraint,
+              direct branding, and private drops with no noise.
+            </p>
+            <div className="brand-hero-actions" aria-label="Brand actions">
+              <a className="button button-primary" href="/shop">
+                <span>Shop SS26</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/lookbook">
+                <span>View lookbook</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="brand-hero-media" aria-label="UNUSUAL campaign imagery">
+            <figure className="brand-hero-large">
+              <img
+                src="/assets/unusual-campaign.png"
+                alt="Model wearing black UNUSUAL outerwear with a red underlayer."
+                style={{ objectPosition: "72% 44%" }}
+              />
+            </figure>
+            <figure className="brand-hero-small" aria-hidden="true">
+              <img src="/assets/unusual-campaign-03.png" alt="" style={{ objectPosition: "75% 50%" }} />
+            </figure>
+            <span className="brand-hero-stamp" aria-hidden="true">
+              SS26_PRIVATE_001
+            </span>
+          </div>
+        </section>
+
+        <section className="brand-manifesto" aria-labelledby="brand-manifesto-heading">
+          <div className="brand-manifesto-copy">
+            <span>MANIFESTO</span>
+            <h2 id="brand-manifesto-heading">Not a uniform. A refusal.</h2>
+            <p>
+              UNUSUAL takes the language of utility clothing and bends it into something more personal: wide shapes,
+              graphic hits, and clothes that make the wearer feel harder to categorize.
+            </p>
+          </div>
+
+          <div className="brand-principle-panel">
+            <div className="brand-principle-media">
+              <img
+                src={currentPrinciple.image}
+                alt={currentPrinciple.alt}
+                style={{ objectPosition: currentPrinciple.position }}
+              />
+              <span>{currentPrinciple.number}</span>
+            </div>
+
+            <div className="brand-principle-list" aria-label="Brand principles">
+              {brandPrinciples.map((principle, index) => (
+                <button
+                  type="button"
+                  className={activePrinciple === index ? "is-active" : ""}
+                  key={principle.title}
+                  onClick={() => setActivePrinciple(index)}
+                >
+                  <span>{principle.number}</span>
+                  <strong>{principle.title}</strong>
+                  <em>{principle.copy}</em>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="brand-materials" aria-labelledby="brand-materials-heading">
+          <div className="brand-section-head">
+            <span>// MATERIAL_LANGUAGE</span>
+            <h2 id="brand-materials-heading">Built from the details out.</h2>
+          </div>
+
+          <div className="brand-material-grid">
+            {brandMaterials.map((material, index) => (
+              <article className="brand-material" key={material.title} style={{ "--material-index": index }}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{material.title}</h3>
+                <p>{material.copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="brand-release" aria-labelledby="brand-release-heading">
+          <div className="brand-release-copy">
+            <span>PRIVATE_RELEASE_MODEL</span>
+            <h2 id="brand-release-heading">Private releases. No noise.</h2>
+            <p>
+              The brand is built around fewer, sharper drops. Each release gives the pieces room to be styled, worn,
+              and understood before the next signal appears.
+            </p>
+          </div>
+
+          <div className="brand-release-list">
+            {brandReleaseModel.map((item) => (
+              <article key={item.code}>
+                <span>{item.code}</span>
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="brand-waitlist" aria-labelledby="brand-waitlist-heading">
+          <div>
+            <span>JOIN_THE_SIGNAL</span>
+            <h2 id="brand-waitlist-heading">Get the next drop first.</h2>
+          </div>
+
+          <form className={`brand-signup ${isJoined ? "is-complete" : ""}`} onSubmit={handleBrandJoin}>
+            <label htmlFor="brand-email">Early access list</label>
+            <div className="brand-signup-row">
+              <input
+                id="brand-email"
+                type="email"
+                name="brand-email"
+                placeholder=">_ Email address"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setIsJoined(false);
+                }}
+                required
+              />
+              <button type="submit">
+                <span>{isJoined ? "Joined" : "Join waitlist"}</span>
+                <ArrowIcon />
+              </button>
+            </div>
+            <p aria-live="polite">{isJoined ? "Signal received. You're on the list." : "No spam. Drops only."}</p>
+          </form>
+        </section>
+      </main>
+
+      <Footer page="brand" />
+    </div>
+  );
+}
+
 function Footer({ page = "home" }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
@@ -2244,9 +2471,9 @@ function Footer({ page = "home" }) {
             </div>
             <div>
               <h3>Brand</h3>
+              <a href="/brand">Brand Story</a>
               <a href="/lookbook">Lookbook</a>
               <a href={homeAnchor("journal")}>Waitlist</a>
-              <a href={homeAnchor("top")}>SS26 Campaign</a>
             </div>
             <div>
               <h3>Social</h3>
@@ -2399,6 +2626,10 @@ export default function App() {
 
   if (pathname === "/lookbook") {
     return <LookbookPage cartCount={cartCount} />;
+  }
+
+  if (pathname === "/brand") {
+    return <BrandPage cartCount={cartCount} />;
   }
 
   if (page === "shop") {
