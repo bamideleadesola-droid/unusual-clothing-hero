@@ -744,7 +744,12 @@ svg {
 .code-signup input:focus-visible,
 .code-signup button:focus-visible,
 .motion-buttons button:focus-visible,
-.motion-cta:focus-visible {
+.motion-cta:focus-visible,
+.footer-signup input:focus-visible,
+.footer-signup button:focus-visible,
+.footer-links a:focus-visible,
+.footer-look:focus-visible,
+.footer-topline a:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 3px;
 }
@@ -2226,6 +2231,407 @@ svg {
   stroke-width: 1.8;
 }
 
+.site-footer {
+  position: relative;
+  overflow: clip;
+  border-top: 1px solid rgba(255, 250, 240, 0.2);
+  background:
+    linear-gradient(180deg, rgba(219, 46, 40, 0.1), transparent 20%),
+    repeating-linear-gradient(90deg, rgba(255, 250, 240, 0.035) 0 1px, transparent 1px 92px),
+    #050504;
+  color: var(--white);
+  isolation: isolate;
+}
+
+.site-footer::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(219, 46, 40, 0.18), transparent 22%),
+    linear-gradient(120deg, transparent 0 42%, rgba(255, 250, 240, 0.06) 42% 42.16%, transparent 42.16%);
+  content: "";
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.site-footer::after {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  box-shadow: 0 0 26px rgba(219, 46, 40, 0.72);
+  content: "";
+  opacity: 0.74;
+  pointer-events: none;
+  animation: footerScan 5.8s var(--ease-snap) infinite;
+}
+
+.footer-signal {
+  display: flex;
+  gap: 28px;
+  overflow: hidden;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid rgba(255, 250, 240, 0.18);
+  color: rgba(255, 250, 240, 0.2);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(2.8rem, 7vw, 8.6rem);
+  line-height: 0.82;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.footer-signal span {
+  flex: 0 0 auto;
+  animation: footerTicker 32s linear infinite;
+}
+
+.footer-frame {
+  width: min(100% - 72px, 1760px);
+  margin: 0 auto;
+  padding: clamp(3rem, 5vw, 5.4rem) 0 clamp(1.6rem, 2.8vw, 2.4rem);
+}
+
+.footer-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: clamp(1rem, 1.6vw, 1.4rem);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.26);
+  color: rgba(255, 250, 240, 0.68);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-topline a {
+  position: relative;
+  color: var(--red);
+  transition: color 220ms var(--ease-out);
+}
+
+.footer-topline a::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.32rem;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: scaleX(0.4);
+  transform-origin: right;
+  transition: transform 220ms var(--ease-out);
+}
+
+.footer-topline a:hover::after,
+.footer-topline a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.72fr) minmax(420px, 0.74fr);
+  gap: clamp(2rem, 5vw, 6rem);
+  align-items: start;
+  padding: clamp(2rem, 4.4vw, 5rem) 0 clamp(1.8rem, 3vw, 3rem);
+}
+
+.footer-brand-block h2 {
+  margin: 0;
+  color: rgba(255, 250, 240, 0.95);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(5.8rem, 14vw, 19rem);
+  font-weight: 950;
+  line-height: 0.78;
+  text-transform: uppercase;
+}
+
+.footer-brand-block p {
+  max-width: 31ch;
+  margin: clamp(1rem, 1.8vw, 1.7rem) 0 0;
+  color: rgba(255, 250, 240, 0.66);
+  font-size: clamp(1rem, 0.9vw, 1.34rem);
+  font-weight: 760;
+  line-height: 1.24;
+}
+
+.footer-signup {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  animation: footerBlockReveal 720ms var(--ease-out) 120ms both;
+}
+
+.footer-signup label,
+.footer-links h3,
+.footer-bottom {
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.footer-signup label {
+  color: var(--red);
+}
+
+.footer-signup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(128px, 0.34fr);
+  min-height: 66px;
+  border: 1px solid rgba(255, 250, 240, 0.68);
+  background: rgba(255, 250, 240, 0.035);
+  transition:
+    border-color 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
+}
+
+.footer-signup.is-complete .footer-signup-row {
+  border-color: rgba(219, 46, 40, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(219, 46, 40, 0.62);
+}
+
+.footer-signup input,
+.footer-signup button {
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+}
+
+.footer-signup input {
+  min-width: 0;
+  min-height: 64px;
+  padding: 0 1rem;
+  background: transparent;
+  color: var(--white);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.footer-signup input::placeholder {
+  color: rgba(255, 250, 240, 0.42);
+}
+
+.footer-signup button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0 1rem;
+  border-left: 1px solid rgba(255, 250, 240, 0.68);
+  background: var(--red);
+  color: var(--white);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.footer-signup button:hover,
+.footer-signup button:focus-visible {
+  background: var(--red-dark);
+  transform: translateY(-2px);
+}
+
+.footer-signup button svg {
+  width: 22px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  transition: transform 220ms var(--ease-out);
+}
+
+.footer-signup button:hover svg,
+.footer-signup button:focus-visible svg {
+  transform: translateX(5px);
+}
+
+.footer-signup > p {
+  min-height: 1.2em;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.52);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
+  animation: footerBlockReveal 720ms var(--ease-out) 220ms both;
+}
+
+.footer-links div {
+  display: grid;
+  gap: 0.8rem;
+  align-content: start;
+}
+
+.footer-links h3 {
+  margin: 0 0 0.25rem;
+  color: var(--red);
+}
+
+.footer-links a {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  color: rgba(255, 250, 240, 0.72);
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+  transition:
+    color 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.footer-links a::before {
+  position: absolute;
+  top: 50%;
+  left: -1rem;
+  width: 0.48rem;
+  height: 1px;
+  background: var(--red);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  color: var(--white);
+  transform: translateX(0.5rem);
+}
+
+.footer-links a:hover::before,
+.footer-links a:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.footer-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: clamp(1rem, 2vw, 2rem) 0 clamp(1.4rem, 2.6vw, 2.5rem);
+  border-top: 1px solid rgba(255, 250, 240, 0.22);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.22);
+}
+
+.footer-look {
+  position: relative;
+  min-height: clamp(220px, 22vw, 360px);
+  overflow: clip;
+  border: 1px solid rgba(255, 250, 240, 0.2);
+  background: #12110f;
+  animation: footerLookReveal 720ms var(--ease-out) both;
+  animation-delay: calc(160ms + (var(--footer-look-index) * 90ms));
+  isolation: isolate;
+}
+
+.footer-look img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(1.08) brightness(0.72);
+  transform: scale(1.02);
+  transition:
+    filter 360ms var(--ease-out),
+    transform 540ms var(--ease-out);
+}
+
+.footer-look::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, transparent 28%, rgba(0, 0, 0, 0.76)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 60%);
+  content: "";
+}
+
+.footer-look:hover img,
+.footer-look:focus-visible img {
+  filter: saturate(1.05) contrast(1.1) brightness(0.84);
+  transform: scale(1.08);
+}
+
+.footer-look span {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  color: rgba(255, 250, 240, 0.88);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(1.45rem, 1.8vw, 2.5rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.footer-look strong {
+  flex: 0 0 auto;
+  color: var(--red);
+  font-size: clamp(2.3rem, 3.2vw, 4.5rem);
+  line-height: 0.76;
+}
+
+.footer-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: clamp(1rem, 1.8vw, 1.5rem);
+  color: rgba(255, 250, 240, 0.5);
+}
+
+.footer-bottom span:nth-child(2) {
+  text-align: center;
+}
+
+.footer-bottom span:last-child {
+  color: rgba(219, 46, 40, 0.82);
+  text-align: right;
+}
+
 @keyframes pageTint {
   from {
     background-color: #f8f5ed;
@@ -2586,6 +2992,56 @@ svg {
   }
 }
 
+@keyframes footerTicker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - 28px));
+  }
+}
+
+@keyframes footerScan {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  16%,
+  52% {
+    opacity: 0.72;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes footerBlockReveal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    clip-path: inset(12% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes footerLookReveal {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+    clip-path: inset(18% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0);
+  }
+}
+
 @media (max-width: 980px) {
   .hero-shell {
     background: var(--paper);
@@ -2825,6 +3281,34 @@ svg {
 
   .motion-buttons {
     justify-content: start;
+  }
+
+  .footer-frame {
+    width: min(100% - 36px, 760px);
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-brand-block h2 {
+    font-size: clamp(5rem, 18vw, 10rem);
+  }
+
+  .footer-signup {
+    max-width: 640px;
+  }
+
+  .footer-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-look {
+    min-height: clamp(180px, 32vw, 280px);
   }
 }
 
@@ -3166,6 +3650,88 @@ svg {
 
   .motion-buttons > span {
     margin-right: 0;
+  }
+
+  .footer-signal {
+    font-size: 2.7rem;
+  }
+
+  .footer-frame {
+    width: min(100% - 28px, 460px);
+    padding-top: 2.5rem;
+  }
+
+  .footer-topline {
+    align-items: flex-start;
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+
+  .footer-grid {
+    gap: 2rem;
+    padding: 2rem 0;
+  }
+
+  .footer-brand-block h2 {
+    font-size: clamp(4.15rem, 24vw, 7rem);
+  }
+
+  .footer-brand-block p {
+    max-width: 25ch;
+    font-size: 0.98rem;
+  }
+
+  .footer-signup-row {
+    grid-template-columns: minmax(0, 1fr) minmax(96px, 0.34fr);
+    min-height: 58px;
+  }
+
+  .footer-signup input {
+    min-height: 56px;
+    padding-inline: 0.8rem;
+    font-size: 0.72rem;
+  }
+
+  .footer-signup button {
+    min-height: 56px;
+    padding-inline: 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .footer-signup button svg {
+    display: none;
+  }
+
+  .footer-links {
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+  }
+
+  .footer-links div {
+    gap: 0.7rem;
+  }
+
+  .footer-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-look {
+    min-height: 300px;
+  }
+
+  .footer-look span {
+    font-size: 1.6rem;
+  }
+
+  .footer-bottom {
+    grid-template-columns: 1fr;
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+
+  .footer-bottom span:nth-child(2),
+  .footer-bottom span:last-child {
+    text-align: left;
   }
 }
 

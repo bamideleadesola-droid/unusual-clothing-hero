@@ -865,6 +865,106 @@ function Hero() {
   );
 }
 
+function Footer() {
+  const [email, setEmail] = useState("");
+  const [isJoined, setIsJoined] = useState(false);
+
+  const handleFooterSignup = (event) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    setIsJoined(true);
+  };
+
+  return (
+    <footer className="site-footer" aria-labelledby="footer-heading">
+      <div className="footer-signal" aria-hidden="true">
+        <span>PRIVATE RELEASE / NO NOISE / JOIN THE WAITLIST / </span>
+        <span>PRIVATE RELEASE / NO NOISE / JOIN THE WAITLIST / </span>
+      </div>
+
+      <div className="footer-frame">
+        <div className="footer-topline">
+          <span>UNUSUAL / SS26</span>
+          <a href="#top">Back to top</a>
+        </div>
+
+        <div className="footer-grid">
+          <div className="footer-brand-block">
+            <h2 id="footer-heading">Unusual</h2>
+            <p>Private drops for people who refuse the default setting.</p>
+          </div>
+
+          <form className={`footer-signup ${isJoined ? "is-complete" : ""}`} onSubmit={handleFooterSignup}>
+            <label htmlFor="footer-email">Get the next signal first.</label>
+            <div className="footer-signup-row">
+              <input
+                id="footer-email"
+                type="email"
+                name="footer-email"
+                placeholder=">_ Email address"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setIsJoined(false);
+                }}
+                required
+              />
+              <button type="submit">
+                <span>{isJoined ? "Joined" : "Join"}</span>
+                <ArrowIcon />
+              </button>
+            </div>
+            <p aria-live="polite">{isJoined ? "Signal received. You're on the list." : "No spam. Drops only."}</p>
+          </form>
+
+          <nav className="footer-links" aria-label="Footer navigation">
+            <div>
+              <h3>Shop</h3>
+              <a href="#shop">Outerwear</a>
+              <a href="#shop">Jerseys</a>
+              <a href="#shop">Accessories</a>
+            </div>
+            <div>
+              <h3>Brand</h3>
+              <a href="#archive">Lookbook</a>
+              <a href="#journal">Waitlist</a>
+              <a href="#top">SS26 Campaign</a>
+            </div>
+            <div>
+              <h3>Social</h3>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer">
+                Instagram
+              </a>
+              <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                TikTok
+              </a>
+              <a href="mailto:studio@unusual.local">Email</a>
+            </div>
+          </nav>
+        </div>
+
+        <div className="footer-gallery" aria-label="Featured UNUSUAL pieces">
+          {releaseProducts.slice(0, 3).map((product, index) => (
+            <a className="footer-look" href="#shop" key={product.sku} style={{ "--footer-look-index": index }}>
+              <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+              <span>
+                <strong>{product.number}</strong>
+                {product.name}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        <div className="footer-bottom">
+          <span>(C) 2026 UNUSUAL</span>
+          <span>Made for the unnamed uniform.</span>
+          <span>SS26_PRIVATE_001</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
   return (
     <>
@@ -873,6 +973,7 @@ export default function App() {
       <ReleaseRack />
       <UnusualCode />
       <SeenInMotion />
+      <Footer />
     </>
   );
 }
