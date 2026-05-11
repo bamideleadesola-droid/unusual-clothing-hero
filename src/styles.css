@@ -253,10 +253,12 @@ svg {
   transform: scaleX(0.32);
 }
 
+.lookbook-link[aria-current="page"],
 .account-link[aria-current="page"] {
   color: var(--red);
 }
 
+.lookbook-link[aria-current="page"]::after,
 .account-link[aria-current="page"]::after {
   transform: scaleX(1);
 }
@@ -4166,6 +4168,506 @@ svg {
   gap: 1rem;
 }
 
+.waitlist-shell {
+  min-height: 100svh;
+  overflow: clip;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(219, 46, 40, 0.16), transparent 28%),
+    repeating-linear-gradient(90deg, rgba(255, 250, 240, 0.035) 0 1px, transparent 1px 108px),
+    #050504;
+  color: var(--white);
+}
+
+.waitlist-shell .site-header {
+  border-bottom-color: rgba(255, 250, 240, 0.32);
+  color: var(--white);
+}
+
+.waitlist-shell .site-header::before {
+  background: linear-gradient(90deg, var(--red) 0 88px, transparent 88px);
+}
+
+.waitlist-shell .brand-symbol {
+  background: var(--white);
+}
+
+.waitlist-shell .drop-code {
+  border-left-color: rgba(255, 250, 240, 0.28);
+}
+
+.waitlist-shell .nav-links {
+  border-color: rgba(255, 250, 240, 0.34);
+  background: rgba(255, 250, 240, 0.05);
+}
+
+.waitlist-shell .nav-links a {
+  border-right-color: rgba(255, 250, 240, 0.16);
+}
+
+.waitlist-shell .nav-links a:hover,
+.waitlist-shell .nav-links a:focus-visible,
+.waitlist-shell .nav-links a[aria-current="page"] {
+  background: var(--white);
+  color: #050504;
+}
+
+.waitlist-shell .lookbook-link {
+  color: var(--white);
+}
+
+.waitlist-shell .lookbook-link[aria-current="page"] {
+  color: var(--red);
+}
+
+.waitlist-shell .bag-link {
+  background: var(--red);
+  color: var(--white);
+}
+
+.waitlist-shell .bag-link:hover,
+.waitlist-shell .bag-link:focus-visible {
+  background: var(--white);
+  color: #050504;
+}
+
+.waitlist-page {
+  display: grid;
+  gap: clamp(2rem, 4vw, 4.5rem);
+  width: min(100% - 72px, 1760px);
+  margin: 0 auto;
+  padding: clamp(2.6rem, 4.8vw, 5.4rem) 0 clamp(5rem, 8vw, 8.5rem);
+}
+
+.waitlist-crumbs {
+  display: none;
+  color: rgba(255, 250, 240, 0.6);
+}
+
+.waitlist-crumbs a {
+  color: var(--red);
+}
+
+.waitlist-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(420px, 0.7fr);
+  gap: clamp(1rem, 3vw, 3rem);
+  align-items: stretch;
+  min-height: clamp(520px, 62svh, 780px);
+  padding-bottom: clamp(2rem, 4vw, 4rem);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.34);
+}
+
+.waitlist-hero-copy {
+  display: grid;
+  align-content: end;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.waitlist-hero-copy > span,
+.waitlist-entry label,
+.waitlist-panel-head > span,
+.waitlist-profile label > span,
+.waitlist-toggle-list span,
+.waitlist-confirm > span {
+  color: var(--red);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.waitlist-hero h1 {
+  max-width: 100%;
+  color: var(--white);
+  font-size: clamp(4rem, 6.2vw, 8.2rem);
+  line-height: 0.84;
+}
+
+.waitlist-hero h1 span {
+  display: block;
+}
+
+.waitlist-hero p,
+.waitlist-entry p,
+.waitlist-signal-grid p,
+.waitlist-toggle-list small,
+.waitlist-confirm p {
+  margin: 0;
+  color: rgba(255, 250, 240, 0.66);
+  font-weight: 760;
+  line-height: 1.3;
+}
+
+.waitlist-hero-copy > p {
+  max-width: 46ch;
+  font-size: clamp(1rem, 0.8vw + 0.82rem, 1.28rem);
+  line-height: 1.25;
+}
+
+.waitlist-entry,
+.waitlist-profile,
+.waitlist-confirm {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid rgba(255, 250, 240, 0.42);
+  background: rgba(255, 250, 240, 0.045);
+  padding: clamp(1rem, 1.8vw, 1.6rem);
+}
+
+.waitlist-entry {
+  max-width: 720px;
+}
+
+.waitlist-entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 0.34fr);
+  min-height: 68px;
+  border: 1px solid rgba(255, 250, 240, 0.68);
+  background: rgba(255, 250, 240, 0.035);
+  transition:
+    border-color 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
+}
+
+.waitlist-entry.is-complete .waitlist-entry-row {
+  border-color: rgba(219, 46, 40, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(219, 46, 40, 0.62);
+}
+
+.waitlist-entry input,
+.waitlist-entry button,
+.waitlist-profile input,
+.waitlist-profile select,
+.waitlist-interest-list button {
+  border-radius: 0;
+  font: inherit;
+}
+
+.waitlist-entry input {
+  min-width: 0;
+  min-height: 66px;
+  padding: 0 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--white);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.waitlist-entry button {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 66px;
+  padding: 0 1rem;
+  border: 0;
+  border-left: 1px solid rgba(255, 250, 240, 0.68);
+  background: var(--red);
+  color: var(--white);
+  cursor: pointer;
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+}
+
+.waitlist-entry button:hover,
+.waitlist-entry button:focus-visible {
+  background: var(--white);
+  color: #050504;
+}
+
+.waitlist-entry button svg {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.waitlist-visual {
+  position: relative;
+  min-height: 100%;
+}
+
+.waitlist-image-card {
+  position: absolute;
+  overflow: clip;
+  margin: 0;
+  border: 1px solid rgba(255, 250, 240, 0.52);
+  background: #15120f;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.32);
+}
+
+.waitlist-image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.05);
+  transform: scale(1.01);
+}
+
+.waitlist-image-card figcaption {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  left: 0.8rem;
+  z-index: 2;
+  color: rgba(255, 250, 240, 0.86);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.waitlist-image-card::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 46%, rgba(5, 5, 4, 0.66));
+  content: "";
+}
+
+.waitlist-image-card.is-main {
+  inset: 0 16% 8% 0;
+  animation: waitlistFloat 8s var(--ease-out) infinite alternate;
+}
+
+.waitlist-image-card:nth-child(2) {
+  top: 7%;
+  right: 0;
+  width: 42%;
+  height: 38%;
+  animation: waitlistFloat 7s var(--ease-out) 400ms infinite alternate-reverse;
+}
+
+.waitlist-image-card:nth-child(3) {
+  right: 6%;
+  bottom: 0;
+  width: 46%;
+  height: 36%;
+  animation: waitlistFloat 7.5s var(--ease-out) 800ms infinite alternate;
+}
+
+.waitlist-signal-grid,
+.waitlist-flow,
+.waitlist-field-grid,
+.waitlist-interest-list,
+.waitlist-toggle-list,
+.waitlist-mini-rail,
+.waitlist-confirm-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.waitlist-signal-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.waitlist-signal-grid article {
+  display: grid;
+  align-content: space-between;
+  min-height: 240px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 250, 240, 0.34);
+  background: rgba(255, 250, 240, 0.04);
+}
+
+.waitlist-signal-grid span {
+  color: var(--red);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(3rem, 4vw, 6.2rem);
+  line-height: 0.82;
+}
+
+.waitlist-signal-grid h2,
+.waitlist-panel-head h2 {
+  margin: 0;
+  color: var(--white);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(2.5rem, 4vw, 5.8rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.waitlist-flow {
+  grid-template-columns: minmax(0, 0.58fr) minmax(360px, 0.42fr);
+  align-items: start;
+}
+
+.waitlist-field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.waitlist-profile label {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.waitlist-profile input,
+.waitlist-profile select {
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  border: 1px solid rgba(255, 250, 240, 0.5);
+  background: rgba(255, 250, 240, 0.04);
+  color: var(--white);
+  font-size: 0.96rem;
+  font-weight: 760;
+  padding: 0 1rem;
+}
+
+.waitlist-profile select option {
+  background: #050504;
+  color: var(--white);
+}
+
+.waitlist-interest-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.waitlist-interest-list button {
+  min-height: 54px;
+  border: 1px solid rgba(255, 250, 240, 0.44);
+  background: rgba(255, 250, 240, 0.035);
+  color: rgba(255, 250, 240, 0.72);
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out),
+    border-color 220ms var(--ease-out);
+}
+
+.waitlist-interest-list button:hover,
+.waitlist-interest-list button:focus-visible,
+.waitlist-interest-list button.is-active {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--white);
+}
+
+.waitlist-toggle-list label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.42rem 0.85rem;
+  align-items: center;
+  min-height: 72px;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 250, 240, 0.2);
+  cursor: pointer;
+}
+
+.waitlist-toggle-list input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--red);
+}
+
+.waitlist-toggle-list small {
+  grid-column: 2;
+}
+
+.waitlist-submit {
+  width: fit-content;
+}
+
+.waitlist-confirm {
+  position: sticky;
+  top: 96px;
+  align-content: start;
+  background:
+    linear-gradient(135deg, rgba(219, 46, 40, 0.12), transparent 34%),
+    rgba(255, 250, 240, 0.045);
+}
+
+.waitlist-confirm.is-live {
+  border-color: rgba(219, 46, 40, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(219, 46, 40, 0.42);
+}
+
+.waitlist-confirm strong {
+  color: var(--white);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(4rem, 7vw, 9rem);
+  line-height: 0.82;
+}
+
+.waitlist-mini-rail {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.waitlist-mini-rail a {
+  display: grid;
+  overflow: clip;
+  border: 1px solid rgba(255, 250, 240, 0.24);
+  background: rgba(255, 250, 240, 0.035);
+}
+
+.waitlist-mini-rail img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  transition:
+    filter 320ms var(--ease-out),
+    transform 520ms var(--ease-out);
+}
+
+.waitlist-mini-rail a:hover img,
+.waitlist-mini-rail a:focus-visible img {
+  filter: saturate(1.06) contrast(1.05);
+  transform: scale(1.06);
+}
+
+.waitlist-mini-rail span {
+  padding: 0.65rem;
+  color: rgba(255, 250, 240, 0.76);
+  font-size: 0.68rem;
+  font-weight: 950;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.waitlist-confirm-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.waitlist-confirm .button-secondary {
+  border-color: rgba(255, 250, 240, 0.54);
+  background: rgba(255, 250, 240, 0.06);
+  color: var(--white);
+}
+
+.waitlist-confirm .button-secondary:hover,
+.waitlist-confirm .button-secondary:focus-visible {
+  background: var(--white);
+  color: #050504;
+}
+
 .account-stats,
 .account-layout,
 .account-form-grid,
@@ -6187,6 +6689,15 @@ svg {
   }
 }
 
+@keyframes waitlistFloat {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(-1.1%, -1.4%, 0) rotate(-0.8deg);
+  }
+}
+
 @keyframes wordmarkReveal {
   from {
     opacity: 0;
@@ -6899,6 +7410,7 @@ svg {
   .checkout-page,
   .order-page,
   .support-page,
+  .waitlist-page,
   .commerce-empty {
     width: min(100% - 36px, 760px);
   }
@@ -6908,12 +7420,30 @@ svg {
   .checkout-layout,
   .order-grid,
   .support-hero,
-  .support-grid {
+  .support-grid,
+  .waitlist-hero,
+  .waitlist-flow {
     grid-template-columns: 1fr;
   }
 
   .support-hero-copy {
     min-height: auto;
+  }
+
+  .waitlist-hero {
+    min-height: auto;
+  }
+
+  .waitlist-visual {
+    min-height: 640px;
+  }
+
+  .waitlist-signal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .waitlist-confirm {
+    position: static;
   }
 
   .support-hero-media {
@@ -7415,6 +7945,7 @@ svg {
   .checkout-page,
   .order-page,
   .support-page,
+  .waitlist-page,
   .commerce-empty {
     width: min(100% - 28px, 460px);
     padding-top: 2.3rem;
@@ -7441,7 +7972,16 @@ svg {
     line-height: 0.84;
   }
 
+  .waitlist-hero h1 {
+    font-size: clamp(4rem, 22vw, 7rem);
+    line-height: 0.84;
+  }
+
   .support-hero p {
+    font-size: 0.96rem;
+  }
+
+  .waitlist-hero-copy > p {
     font-size: 0.96rem;
   }
 
@@ -7453,11 +7993,69 @@ svg {
     min-height: 430px;
   }
 
+  .waitlist-entry,
+  .waitlist-profile,
+  .waitlist-confirm {
+    padding: 1rem;
+  }
+
+  .waitlist-entry-row {
+    grid-template-columns: minmax(0, 1fr) minmax(112px, 0.36fr);
+    min-height: 58px;
+  }
+
+  .waitlist-entry input {
+    min-height: 56px;
+    padding-inline: 0.78rem;
+    font-size: 0.72rem;
+  }
+
+  .waitlist-entry button {
+    gap: 0.55rem;
+    min-height: 56px;
+    padding-inline: 0.72rem;
+    font-size: 0.66rem;
+  }
+
+  .waitlist-entry button span {
+    max-width: 8ch;
+    line-height: 1.05;
+  }
+
+  .waitlist-entry button svg {
+    display: none;
+  }
+
+  .waitlist-visual {
+    min-height: 520px;
+  }
+
+  .waitlist-image-card.is-main {
+    inset: 0 0 16% 0;
+  }
+
+  .waitlist-image-card:nth-child(2) {
+    top: 7%;
+    width: 44%;
+    height: 32%;
+  }
+
+  .waitlist-image-card:nth-child(3) {
+    right: 0;
+    width: 48%;
+    height: 30%;
+  }
+
   .support-grid,
   .fit-card-grid,
   .policy-block-grid,
   .support-product-strip,
   .help-topic-grid,
+  .waitlist-signal-grid,
+  .waitlist-field-grid,
+  .waitlist-interest-list,
+  .waitlist-mini-rail,
+  .waitlist-confirm-actions,
   .returns-steps {
     grid-template-columns: 1fr;
   }

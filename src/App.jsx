@@ -509,6 +509,9 @@ const helpTopics = [
 
 const returnReasons = ["Size exchange", "Fit not right", "Damaged on arrival", "Changed mind", "Wrong item"];
 
+const waitlistInterests = ["Outerwear", "Jerseys", "Logo Knit", "Accessories"];
+const waitlistSizes = ["XS", "S", "M", "L", "XL", "One size"];
+
 const defaultAccount = {
   firstName: "",
   lastName: "",
@@ -525,10 +528,27 @@ const defaultAccount = {
   },
 };
 
+const defaultWaitlist = {
+  firstName: "",
+  email: "",
+  phone: "",
+  city: "London",
+  size: "M",
+  interest: "Outerwear",
+  source: "Private release",
+  joinedAt: "",
+  preferences: {
+    earlyAccess: true,
+    fitNotes: true,
+    sms: false,
+  },
+};
+
 const CART_STORAGE_KEY = "unusual-cart-v1";
 const ORDER_STORAGE_KEY = "unusual-order-v1";
 const SAVED_STORAGE_KEY = "unusual-saved-v1";
 const ACCOUNT_STORAGE_KEY = "unusual-account-v1";
+const WAITLIST_STORAGE_KEY = "unusual-waitlist-v1";
 const promoCodes = {
   SIGNAL10: { label: "Signal code", rate: 0.1 },
   UNUSUAL15: { label: "Private list", rate: 0.15 },
@@ -582,6 +602,37 @@ function readStoredSavedSkus() {
   return Array.isArray(stored) ? stored.filter((sku) => getProduct(sku)) : [];
 }
 
+function readStoredWaitlist() {
+  const stored = readStoredJson(WAITLIST_STORAGE_KEY, defaultWaitlist);
+  return {
+    ...defaultWaitlist,
+    ...stored,
+    preferences: {
+      ...defaultWaitlist.preferences,
+      ...(stored.preferences ?? {}),
+    },
+  };
+}
+
+function storeWaitlistEntry(entry) {
+  const current = readStoredWaitlist();
+  const next = {
+    ...defaultWaitlist,
+    ...current,
+    ...entry,
+    email: entry.email?.trim() || current.email,
+    joinedAt: new Date().toISOString(),
+    preferences: {
+      ...defaultWaitlist.preferences,
+      ...current.preferences,
+      ...(entry.preferences ?? {}),
+    },
+  };
+
+  window.localStorage.setItem(WAITLIST_STORAGE_KEY, JSON.stringify(next));
+  return next;
+}
+
 function getCartTotals(items, shippingPrice = 0, promoCode = "") {
   const subtotal = items.reduce((total, item) => {
     const product = getProduct(item.sku);
@@ -608,11 +659,12 @@ function ArrowIcon() {
 function Header({ page = "home", cartCount = 0 }) {
   const homeHref = page === "home" ? "#top" : "/";
   const lookbookHref = "/lookbook";
-  const waitlistHref = page === "home" ? "#journal" : "/#journal";
+  const waitlistHref = "/waitlist";
   const isShopCurrent = page === "shop" || page === "product";
   const isLookbookCurrent = page === "lookbook";
   const isBrandCurrent = page === "brand";
   const isAccountCurrent = page === "account";
+  const isWaitlistCurrent = page === "waitlist";
 
   return (
     <header className="site-header" aria-label="Primary navigation">
@@ -638,7 +690,7 @@ function Header({ page = "home", cartCount = 0 }) {
         <a className="lookbook-link account-link" href="/account" aria-current={isAccountCurrent ? "page" : undefined}>
           Account
         </a>
-        <a className="lookbook-link" href={waitlistHref}>
+        <a className="lookbook-link" href={waitlistHref} aria-current={isWaitlistCurrent ? "page" : undefined}>
           Join Waitlist
         </a>
         <a className="bag-link" href="/bag" aria-label={`Open shopping bag with ${cartCount} items`}>
@@ -1846,13 +1898,18 @@ function SeenInMotion() {
   );
 }
 
-function UnusualCode() {
+function UnusualCode({ joinWaitlist = null }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
 
   const handleSignup = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
+    if (joinWaitlist) {
+      joinWaitlist({ email, source: "Homepage private release" });
+    } else {
+      storeWaitlistEntry({ email, source: "Homepage private release" });
+    }
     setIsJoined(true);
   };
 
@@ -2232,7 +2289,7 @@ function Hero({ cartCount = 0 }) {
   );
 }
 
-function LookbookPage({ cartCount = 0 }) {
+function LookbookPage({ cartCount = 0, joinWaitlist = null }) {
   const [activeStory, setActiveStory] = useState(lookbookStories[0].slug);
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
@@ -2273,6 +2330,11 @@ function LookbookPage({ cartCount = 0 }) {
   const handleLookbookJoin = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
+    if (joinWaitlist) {
+      joinWaitlist({ email, source: "Lookbook closing" });
+    } else {
+      storeWaitlistEntry({ email, source: "Lookbook closing" });
+    }
     setIsJoined(true);
   };
 
@@ -2442,7 +2504,7 @@ function LookbookPage({ cartCount = 0 }) {
   );
 }
 
-function BrandPage({ cartCount = 0 }) {
+function BrandPage({ cartCount = 0, joinWaitlist = null }) {
   const [activePrinciple, setActivePrinciple] = useState(0);
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
@@ -2451,6 +2513,11 @@ function BrandPage({ cartCount = 0 }) {
   const handleBrandJoin = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
+    if (joinWaitlist) {
+      joinWaitlist({ email, source: "Brand story" });
+    } else {
+      storeWaitlistEntry({ email, source: "Brand story" });
+    }
     setIsJoined(true);
   };
 
@@ -3268,6 +3335,244 @@ function HelpPage({ cartCount = 0, order }) {
   );
 }
 
+function WaitlistPage({ cartCount = 0, waitlist = defaultWaitlist, joinWaitlist = storeWaitlistEntry }) {
+  const [draft, setDraft] = useState(waitlist);
+  const [isJoined, setIsJoined] = useState(Boolean(waitlist.joinedAt));
+
+  useEffect(() => {
+    setDraft({
+      ...defaultWaitlist,
+      ...waitlist,
+      preferences: {
+        ...defaultWaitlist.preferences,
+        ...(waitlist.preferences ?? {}),
+      },
+    });
+    setIsJoined(Boolean(waitlist.joinedAt));
+  }, [waitlist]);
+
+  const updateDraft = (field, value) => {
+    setDraft((current) => ({ ...current, [field]: value }));
+    setIsJoined(false);
+  };
+
+  const updatePreference = (field) => {
+    setDraft((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        [field]: !current.preferences[field],
+      },
+    }));
+    setIsJoined(false);
+  };
+
+  const handleJoin = (event) => {
+    event.preventDefault();
+    if (!draft.email.trim()) return;
+    const next = joinWaitlist({ ...draft, source: draft.source || "Waitlist page" });
+    setDraft(next ?? { ...draft, joinedAt: new Date().toISOString() });
+    setIsJoined(true);
+  };
+
+  const accessCode = `UN-${(draft.email || "private")
+    .split("@")[0]
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(0, 6)
+    .toUpperCase()
+    .padEnd(6, "X")}`;
+
+  return (
+    <div className="waitlist-shell" id="top">
+      <Header page="waitlist" cartCount={cartCount} />
+
+      <main className="waitlist-page" aria-labelledby="waitlist-heading">
+        <nav className="commerce-crumbs waitlist-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <span>Waitlist</span>
+        </nav>
+
+        <section className="waitlist-hero">
+          <div className="waitlist-hero-copy">
+            <span>UNUSUAL / SS26 PRIVATE LIST</span>
+            <h1 id="waitlist-heading">
+              <span>Private Release.</span>
+              <span>No Noise.</span>
+            </h1>
+            <p>
+              Enter once for early access, sizing notes, restock signals, and the next UNUSUAL drop before the wider
+              shop opens.
+            </p>
+
+            <form className={`waitlist-entry ${isJoined ? "is-complete" : ""}`} onSubmit={handleJoin}>
+              <label htmlFor="waitlist-email">Enter email</label>
+              <div className="waitlist-entry-row">
+                <input
+                  id="waitlist-email"
+                  type="email"
+                  name="email"
+                  placeholder=">_ Email address"
+                  value={draft.email}
+                  onChange={(event) => updateDraft("email", event.target.value)}
+                  required
+                />
+                <button type="submit">
+                  <span>{isJoined ? "Joined" : "Join waitlist"}</span>
+                  <ArrowIcon />
+                </button>
+              </div>
+              <p aria-live="polite">
+                {isJoined ? "Signal received. You are on the private list." : "No spam. Drop signals only."}
+              </p>
+            </form>
+          </div>
+
+          <div className="waitlist-visual" aria-label="UNUSUAL private release looks">
+            {[
+              {
+                image: "/assets/unusual-drop-outerwear.png",
+                alt: "Model in black UNUSUAL tactical outerwear.",
+                label: "01 / Outerwear signal",
+                position: "50% 30%",
+              },
+              {
+                image: "/assets/unusual-drop-jersey.png",
+                alt: "Model in red and black UNUSUAL match jersey.",
+                label: "02 / Match jersey",
+                position: "48% 32%",
+              },
+              {
+                image: "/assets/unusual-drop-accessories.png",
+                alt: "Model wearing UNUSUAL accessories with red gloves.",
+                label: "03 / Accessory lock",
+                position: "50% 34%",
+              },
+            ].map((look, index) => (
+              <figure className={`waitlist-image-card ${index === 0 ? "is-main" : ""}`} key={look.label}>
+                <img src={look.image} alt={look.alt} style={{ objectPosition: look.position }} />
+                <figcaption>{look.label}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <section className="waitlist-signal-grid" aria-label="Waitlist access">
+          {[
+            ["01", "Early signal", "Private list gets the release window before the shop opens wide."],
+            ["02", "Fit notes", "Sizing direction lands with the drop so the first choice is sharper."],
+            ["03", "Restock lock", "Low-run pieces send a quiet alert when sizes return."],
+          ].map(([number, title, copy]) => (
+            <article key={title}>
+              <span>{number}</span>
+              <h2>{title}</h2>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="waitlist-flow" aria-label="Waitlist details">
+          <form className="waitlist-profile" onSubmit={handleJoin}>
+            <div className="waitlist-panel-head">
+              <span>DETAILS / OPTIONAL</span>
+              <h2>Shape the signal.</h2>
+            </div>
+
+            <div className="waitlist-field-grid">
+              <label>
+                <span>First name</span>
+                <input value={draft.firstName} onChange={(event) => updateDraft("firstName", event.target.value)} />
+              </label>
+              <label>
+                <span>Phone optional</span>
+                <input value={draft.phone} onChange={(event) => updateDraft("phone", event.target.value)} />
+              </label>
+              <label>
+                <span>City</span>
+                <input value={draft.city} onChange={(event) => updateDraft("city", event.target.value)} />
+              </label>
+              <label>
+                <span>Usual size</span>
+                <select value={draft.size} onChange={(event) => updateDraft("size", event.target.value)}>
+                  {waitlistSizes.map((size) => (
+                    <option key={size}>{size}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="waitlist-interest-list" aria-label="Primary interest">
+              {waitlistInterests.map((interest) => (
+                <button
+                  type="button"
+                  className={draft.interest === interest ? "is-active" : ""}
+                  key={interest}
+                  onClick={() => updateDraft("interest", interest)}
+                >
+                  {interest}
+                </button>
+              ))}
+            </div>
+
+            <div className="waitlist-toggle-list" aria-label="Waitlist preferences">
+              {[
+                ["earlyAccess", "Early access", "First release signal before public launch."],
+                ["fitNotes", "Fit notes", "Model sizing, measurements, and styling direction."],
+                ["sms", "SMS signal", "Optional text reminder for the first release window."],
+              ].map(([key, label, copy]) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(draft.preferences[key])}
+                    onChange={() => updatePreference(key)}
+                  />
+                  <span>{label}</span>
+                  <small>{copy}</small>
+                </label>
+              ))}
+            </div>
+
+            <button className="button button-primary waitlist-submit" type="submit">
+              <span>{isJoined ? "Update waitlist" : "Join the private list"}</span>
+              <ArrowIcon />
+            </button>
+          </form>
+
+          <aside className={`waitlist-confirm ${isJoined ? "is-live" : ""}`} aria-label="Waitlist status">
+            <span>{isJoined ? "ACCESS CONFIRMED" : "PRIVATE RELEASE"}</span>
+            <strong>{isJoined ? accessCode : "SS26"}</strong>
+            <p>
+              {isJoined
+                ? `${draft.interest} is marked as your first signal. Your details are saved in this browser.`
+                : "Join the list, then use this page to tune the pieces and reminders you care about."}
+            </p>
+            <div className="waitlist-mini-rail">
+              {releaseProducts.slice(0, 3).map((product) => (
+                <a href={`/product/${product.sku}`} key={product.sku}>
+                  <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                  <span>{product.name}</span>
+                </a>
+              ))}
+            </div>
+            <div className="waitlist-confirm-actions">
+              <a className="button button-secondary" href="/shop">
+                <span>Shop current pieces</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/account">
+                <span>View account</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </aside>
+        </section>
+      </main>
+
+      <Footer page="waitlist" />
+    </div>
+  );
+}
+
 function AccountPage({
   account,
   setAccount,
@@ -3581,11 +3886,11 @@ function AccountPage({
 function Footer({ page = "home" }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
-  const homeAnchor = (anchor) => (page === "home" ? `#${anchor}` : `/#${anchor}`);
 
   const handleFooterSignup = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
+    storeWaitlistEntry({ email, source: `Footer ${page}` });
     setIsJoined(true);
   };
 
@@ -3642,7 +3947,7 @@ function Footer({ page = "home" }) {
               <h3>Brand</h3>
               <a href="/brand">Brand Story</a>
               <a href="/lookbook">Lookbook</a>
-              <a href={homeAnchor("journal")}>Waitlist</a>
+              <a href="/waitlist">Waitlist</a>
             </div>
             <div>
               <h3>Support</h3>
@@ -3697,6 +4002,7 @@ export default function App() {
   const [lastOrder, setLastOrder] = useState(() => readStoredJson(ORDER_STORAGE_KEY, null));
   const [savedSkus, setSavedSkus] = useState(readStoredSavedSkus);
   const [account, setAccount] = useState(readStoredAccount);
+  const [waitlist, setWaitlist] = useState(readStoredWaitlist);
   const pathname = window.location.pathname.replace(/\/$/, "") || "/";
   const page = pathname === "/shop" ? "shop" : "home";
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -3718,6 +4024,10 @@ export default function App() {
   useEffect(() => {
     window.localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
   }, [account]);
+
+  useEffect(() => {
+    window.localStorage.setItem(WAITLIST_STORAGE_KEY, JSON.stringify(waitlist));
+  }, [waitlist]);
 
   const addToCart = ({ sku, size, color, quantity = 1 }) => {
     setCartItems((current) => {
@@ -3749,6 +4059,36 @@ export default function App() {
     if (!product) return;
     addToCart({ sku, size: product.sizes[0], color: product.colors[0].name, quantity: 1 });
     setSavedSkus((current) => current.filter((savedSku) => savedSku !== sku));
+  };
+
+  const joinWaitlist = (entry) => {
+    const next = {
+      ...defaultWaitlist,
+      ...waitlist,
+      ...entry,
+      email: entry.email?.trim() || waitlist.email,
+      joinedAt: new Date().toISOString(),
+      preferences: {
+        ...defaultWaitlist.preferences,
+        ...waitlist.preferences,
+        ...(entry.preferences ?? {}),
+      },
+    };
+
+    setWaitlist(next);
+    setAccount((current) => ({
+      ...current,
+      firstName: current.firstName || next.firstName,
+      email: current.email || next.email,
+      phone: current.phone || next.phone,
+      city: current.city || next.city,
+      preferences: {
+        ...current.preferences,
+        earlyAccess: true,
+        sizingNotes: current.preferences.sizingNotes || next.preferences.fitNotes,
+      },
+    }));
+    return next;
   };
 
   const updateCartQuantity = (key, quantity) => {
@@ -3846,6 +4186,10 @@ export default function App() {
     );
   }
 
+  if (pathname === "/waitlist") {
+    return <WaitlistPage cartCount={cartCount} waitlist={waitlist} joinWaitlist={joinWaitlist} />;
+  }
+
   if (pathname === "/track-order") {
     return <OrderTrackingPage cartCount={cartCount} order={lastOrder} />;
   }
@@ -3863,11 +4207,11 @@ export default function App() {
   }
 
   if (pathname === "/lookbook") {
-    return <LookbookPage cartCount={cartCount} />;
+    return <LookbookPage cartCount={cartCount} joinWaitlist={joinWaitlist} />;
   }
 
   if (pathname === "/brand") {
-    return <BrandPage cartCount={cartCount} />;
+    return <BrandPage cartCount={cartCount} joinWaitlist={joinWaitlist} />;
   }
 
   if (page === "shop") {
@@ -3879,7 +4223,7 @@ export default function App() {
       <Hero cartCount={cartCount} />
       <DropIndex />
       <ReleaseRack addToCart={addToCart} cartCount={cartCount} />
-      <UnusualCode />
+      <UnusualCode joinWaitlist={joinWaitlist} />
       <SeenInMotion />
       <Footer />
     </>
