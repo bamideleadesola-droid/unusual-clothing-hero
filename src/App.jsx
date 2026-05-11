@@ -428,6 +428,55 @@ const shippingMethods = [
   { id: "london", name: "London courier", eta: "Same day inside M25", price: 18 },
 ];
 
+const sizeGuideRows = [
+  { size: "S", uk: "UK 8-10", chest: "86-92", waist: "70-76", hip: "88-94", inseam: "76" },
+  { size: "M", uk: "UK 10-12", chest: "92-100", waist: "76-84", hip: "94-102", inseam: "78" },
+  { size: "L", uk: "UK 12-14", chest: "100-108", waist: "84-92", hip: "102-110", inseam: "80" },
+  { size: "XL", uk: "UK 14-16", chest: "108-116", waist: "92-100", hip: "110-118", inseam: "82" },
+];
+
+const fitGuide = [
+  {
+    label: "Outerwear",
+    copy: "Intentionally oversized through the body and shoulder. Size down for a sharper shell shape.",
+  },
+  {
+    label: "Jerseys",
+    copy: "Relaxed match fit with room for a base layer. Take your usual size for the intended drape.",
+  },
+  {
+    label: "Logo knit",
+    copy: "Dropped shoulder and boxy body. Size up only if you want the hoodie to sit extra wide.",
+  },
+  {
+    label: "Trousers",
+    copy: "Wide leg with stacked length. Check waist first, then choose length based on footwear.",
+  },
+  {
+    label: "Accessories",
+    copy: "Bags are adjustable one size. Gloves fit close; size up if you prefer more room.",
+  },
+];
+
+const policyBlocks = [
+  {
+    title: "UK delivery",
+    items: ["Free UK tracked delivery over £120", "Standard delivery arrives in 2-4 working days", "Next-day UK delivery is available for £7"],
+  },
+  {
+    title: "Dispatch",
+    items: ["Orders placed before 14:00 ship the same working day", "Orders placed after 14:00 ship the next working day", "Release drops may take one extra working day to pack"],
+  },
+  {
+    title: "Returns",
+    items: ["Return unworn pieces within 14 days of delivery", "Items must be clean, unwashed, and returned with tags", "Exchanges depend on remaining release stock"],
+  },
+  {
+    title: "Need help",
+    items: ["Use the size guide before checkout", "Email studio@unusual.local with order questions", "Include your order number for faster support"],
+  },
+];
+
 const CART_STORAGE_KEY = "unusual-cart-v1";
 const ORDER_STORAGE_KEY = "unusual-order-v1";
 const promoCodes = {
@@ -867,6 +916,24 @@ function ProductPage({ sku, cartCount = 0, addToCart }) {
                 <dd>{details.model}</dd>
               </div>
             </dl>
+
+            <div className="product-trust-links" aria-label="Product support">
+              <details open>
+                <summary>Size & fit</summary>
+                <p>{details.fit}. Use the UK size guide if you are between sizes.</p>
+                <a href="/size-guide">Open size guide</a>
+              </details>
+              <details>
+                <summary>Delivery</summary>
+                <p>Free UK tracked delivery over £120. Next-day UK and London courier options are available at checkout.</p>
+                <a href="/shipping-returns">View delivery details</a>
+              </details>
+              <details>
+                <summary>Returns</summary>
+                <p>Unworn pieces can be returned within 14 days of delivery. Exchanges depend on remaining release stock.</p>
+                <a href="/shipping-returns#returns">View returns policy</a>
+              </details>
+            </div>
           </div>
         </section>
       </main>
@@ -978,6 +1045,10 @@ function CartPage({ cartItems, cartCount, updateCartQuantity, removeCartItem }) 
                 <span>Checkout</span>
                 <ArrowIcon />
               </a>
+              <div className="cart-support-links" aria-label="Shopping support">
+                <a href="/size-guide">Check sizing</a>
+                <a href="/shipping-returns">Delivery & returns</a>
+              </div>
               <a className="cart-continue" href="/shop">Continue shopping</a>
             </aside>
           </section>
@@ -1344,6 +1415,10 @@ function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem
             </div>
             {promoMessage && <p className={promoCode ? "promo-message is-valid" : "promo-message"}>{promoMessage}</p>}
             <CommerceTotals totals={totals} />
+            <div className="checkout-assurance" aria-label="Checkout support links">
+              <a href="/size-guide">Size guide</a>
+              <a href="/shipping-returns">Shipping & returns</a>
+            </div>
             <div className="summary-edit">
               {cartItems.map((item) => (
                 <CartLineItem
@@ -2409,6 +2484,246 @@ function BrandPage({ cartCount = 0 }) {
   );
 }
 
+function SizeGuidePage({ cartCount = 0 }) {
+  return (
+    <div className="shop-shell support-shell" id="top">
+      <Header page="support" cartCount={cartCount} />
+
+      <main className="support-page" aria-labelledby="size-guide-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <span>Size guide</span>
+        </nav>
+
+        <section className="support-hero">
+          <div className="support-hero-copy">
+            <span>UNUSUAL / SIZE GUIDE</span>
+            <h1 id="size-guide-heading">Find Your Shape</h1>
+            <p>
+              UNUSUAL fits are designed around volume, movement, and sharp proportion. Use the UK size map first,
+              then adjust based on how much room you want in the silhouette.
+            </p>
+            <div className="support-actions">
+              <a className="button button-primary" href="/shop">
+                <span>Shop SS26</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/shipping-returns">
+                <span>Delivery info</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="support-hero-media" aria-label="UNUSUAL fit reference">
+            <img
+              src="/assets/unusual-drop-outerwear.png"
+              alt="Model wearing oversized black UNUSUAL outerwear."
+              style={{ objectPosition: "50% 30%" }}
+            />
+            <span>UK_BODY_MEASUREMENTS_CM</span>
+          </div>
+        </section>
+
+        <section className="support-grid" aria-labelledby="size-table-heading">
+          <div className="support-panel support-table-panel">
+            <div className="support-panel-head">
+              <span>01 / MEASUREMENTS</span>
+              <h2 id="size-table-heading">UK size map</h2>
+            </div>
+            <p>Measurements are body measurements in centimetres. Choose the size that matches your chest first for tops and waist first for trousers.</p>
+            <div className="size-table-wrap">
+              <table className="size-table">
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>UK</th>
+                    <th>Chest</th>
+                    <th>Waist</th>
+                    <th>Hip</th>
+                    <th>Inseam</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sizeGuideRows.map((row) => (
+                    <tr key={row.size}>
+                      <th>{row.size}</th>
+                      <td data-label="UK">{row.uk}</td>
+                      <td data-label="Chest">{row.chest}</td>
+                      <td data-label="Waist">{row.waist}</td>
+                      <td data-label="Hip">{row.hip}</td>
+                      <td data-label="Inseam">{row.inseam}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside className="support-panel support-note-panel" aria-labelledby="fit-rules-heading">
+            <div className="support-panel-head">
+              <span>02 / FIT RULES</span>
+              <h2 id="fit-rules-heading">Between sizes?</h2>
+            </div>
+            <ol>
+              <li>Size down for a cleaner, sharper profile.</li>
+              <li>Take your usual size for the intended UNUSUAL volume.</li>
+              <li>Size up only when you want exaggerated drop and stack.</li>
+            </ol>
+          </aside>
+        </section>
+
+        <section className="support-fit-rail" aria-labelledby="fit-by-category-heading">
+          <div className="support-section-head">
+            <span>03 / CATEGORY FIT</span>
+            <h2 id="fit-by-category-heading">How each piece is meant to sit.</h2>
+          </div>
+          <div className="fit-card-grid">
+            {fitGuide.map((item, index) => (
+              <article key={item.label} style={{ "--fit-index": index }}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{item.label}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="support-model-strip" aria-labelledby="model-reference-heading">
+          <div className="support-section-head">
+            <span>04 / MODEL REFERENCES</span>
+            <h2 id="model-reference-heading">Shop with the fit note in view.</h2>
+          </div>
+          <div className="support-product-strip">
+            {releaseProducts.slice(0, 4).map((product) => {
+              const details = productDetails[product.sku];
+
+              return (
+                <a href={`/product/${product.sku}`} key={product.sku}>
+                  <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                  <span>
+                    <strong>{product.name}</strong>
+                    <small>{details.model}</small>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      </main>
+
+      <Footer page="support" />
+    </div>
+  );
+}
+
+function ShippingReturnsPage({ cartCount = 0 }) {
+  return (
+    <div className="shop-shell support-shell" id="top">
+      <Header page="support" cartCount={cartCount} />
+
+      <main className="support-page policy-page" aria-labelledby="shipping-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <span>Shipping & returns</span>
+        </nav>
+
+        <section className="support-hero policy-hero">
+          <div className="support-hero-copy">
+            <span>UNUSUAL / UK ORDERS</span>
+            <h1 id="shipping-heading">Shipping & Returns</h1>
+            <p>
+              A UK-first checkout flow with clear delivery timing, simple returns, and no surprise handling language.
+              Payment remains simulated in this preview.
+            </p>
+            <div className="support-actions">
+              <a className="button button-primary" href="/shop">
+                <span>Return to shop</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/size-guide">
+                <span>Size guide</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="support-hero-media" aria-label="UNUSUAL delivery reference">
+            <img
+              src="/assets/unusual-drop-accessories.png"
+              alt="Model wearing UNUSUAL accessories and utility bag."
+              style={{ objectPosition: "50% 34%" }}
+            />
+            <span>UK_TRACKED_RELEASE_FLOW</span>
+          </div>
+        </section>
+
+        <section className="policy-block-grid" aria-label="Shipping and returns policy">
+          {policyBlocks.map((block, index) => (
+            <article key={block.title} style={{ "--policy-index": index }}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h2>{block.title}</h2>
+              <ul>
+                {block.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </section>
+
+        <section className="delivery-matrix" aria-labelledby="delivery-options-heading">
+          <div className="support-section-head">
+            <span>DELIVERY OPTIONS</span>
+            <h2 id="delivery-options-heading">Choose the pace at checkout.</h2>
+          </div>
+          <div className="delivery-rows">
+            {shippingMethods.map((method) => (
+              <div key={method.id}>
+                <span>{method.name}</span>
+                <strong>{method.eta}</strong>
+                <b>{method.price === 0 ? "Free" : formatPrice(method.price)}</b>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="returns-process" id="returns" aria-labelledby="returns-heading">
+          <div className="support-section-head">
+            <span>RETURNS PROCESS</span>
+            <h2 id="returns-heading">Return the piece clean, unworn, and tagged.</h2>
+          </div>
+          <div className="returns-steps">
+            <article>
+              <span>01</span>
+              <h3>Email support</h3>
+              <p>Send your order number and the item you want to return to studio@unusual.local within 14 days.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>Pack the item</h3>
+              <p>Use the original packaging where possible. Keep tags attached and avoid fragrance or wear marks.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>Refund or exchange</h3>
+              <p>Refunds process to the original payment method. Exchanges are held only while release stock remains.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <Footer page="support" />
+    </div>
+  );
+}
+
 function Footer({ page = "home" }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
@@ -2474,6 +2789,12 @@ function Footer({ page = "home" }) {
               <a href="/brand">Brand Story</a>
               <a href="/lookbook">Lookbook</a>
               <a href={homeAnchor("journal")}>Waitlist</a>
+            </div>
+            <div>
+              <h3>Support</h3>
+              <a href="/size-guide">Size Guide</a>
+              <a href="/shipping-returns">Shipping & Returns</a>
+              <a href="mailto:studio@unusual.local">Contact</a>
             </div>
             <div>
               <h3>Social</h3>
@@ -2622,6 +2943,14 @@ export default function App() {
 
   if (pathname === "/order-confirmed") {
     return <OrderConfirmationPage cartCount={cartCount} order={lastOrder} />;
+  }
+
+  if (pathname === "/size-guide") {
+    return <SizeGuidePage cartCount={cartCount} />;
+  }
+
+  if (pathname === "/shipping-returns") {
+    return <ShippingReturnsPage cartCount={cartCount} />;
   }
 
   if (pathname === "/lookbook") {
