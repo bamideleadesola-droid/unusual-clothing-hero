@@ -2339,25 +2339,40 @@ svg {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.72fr) minmax(420px, 0.74fr);
-  gap: clamp(2rem, 5vw, 6rem);
+  grid-template-areas:
+    "brand brand"
+    "signup links";
+  grid-template-columns: minmax(320px, 0.52fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4.5rem) clamp(2rem, 5vw, 6rem);
   align-items: start;
   padding: clamp(2rem, 4.4vw, 5rem) 0 clamp(1.8rem, 3vw, 3rem);
 }
 
+.footer-brand-block {
+  display: grid;
+  grid-area: brand;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.28fr);
+  gap: clamp(1.5rem, 4vw, 5rem);
+  align-items: end;
+  min-width: 0;
+}
+
 .footer-brand-block h2 {
+  min-width: 0;
   margin: 0;
   color: rgba(255, 250, 240, 0.95);
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: clamp(5.8rem, 14vw, 19rem);
+  font-size: clamp(5.8rem, 13vw, 17rem);
   font-weight: 950;
   line-height: 0.78;
+  overflow-wrap: normal;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .footer-brand-block p {
   max-width: 31ch;
-  margin: clamp(1rem, 1.8vw, 1.7rem) 0 0;
+  margin: 0 0 0.6rem;
   color: rgba(255, 250, 240, 0.66);
   font-size: clamp(1rem, 0.9vw, 1.34rem);
   font-weight: 760;
@@ -2366,6 +2381,7 @@ svg {
 
 .footer-signup {
   display: grid;
+  grid-area: signup;
   gap: 0.9rem;
   margin: 0;
   animation: footerBlockReveal 720ms var(--ease-out) 120ms both;
@@ -2484,6 +2500,7 @@ svg {
 
 .footer-links {
   display: grid;
+  grid-area: links;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 2vw, 2rem);
   animation: footerBlockReveal 720ms var(--ease-out) 220ms both;
@@ -3289,10 +3306,23 @@ svg {
 
   .footer-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "signup"
+      "links";
+  }
+
+  .footer-brand-block {
+    display: block;
   }
 
   .footer-brand-block h2 {
     font-size: clamp(5rem, 18vw, 10rem);
+    white-space: normal;
+  }
+
+  .footer-brand-block p {
+    margin: 1rem 0 0;
   }
 
   .footer-signup {
