@@ -477,6 +477,38 @@ const policyBlocks = [
   },
 ];
 
+const orderStatusSteps = [
+  { title: "Confirmed", copy: "Order received and release stock reserved." },
+  { title: "Packing", copy: "Pieces are checked, tagged, and packed for dispatch." },
+  { title: "Dispatched", copy: "Tracking handoff is complete with the selected carrier." },
+  { title: "Delivered", copy: "The package has arrived at the delivery address." },
+];
+
+const helpTopics = [
+  {
+    title: "Order question",
+    copy: "Track a delivery, update contact details, or ask about a recent purchase.",
+    href: "/track-order",
+  },
+  {
+    title: "Sizing advice",
+    copy: "Use UK measurements, fit notes, and model references before choosing a size.",
+    href: "/size-guide",
+  },
+  {
+    title: "Return request",
+    copy: "Start a return or exchange request for an item from the latest preview order.",
+    href: "#return-request",
+  },
+  {
+    title: "Press / collab",
+    copy: "Send studio, editorial, styling, or collaboration questions to the brand desk.",
+    href: "mailto:studio@unusual.local",
+  },
+];
+
+const returnReasons = ["Size exchange", "Fit not right", "Damaged on arrival", "Changed mind", "Wrong item"];
+
 const CART_STORAGE_KEY = "unusual-cart-v1";
 const ORDER_STORAGE_KEY = "unusual-order-v1";
 const promoCodes = {
@@ -489,6 +521,22 @@ const getProduct = (sku) => releaseProducts.find((product) => product.sku === sk
 const parsePrice = (price) => Number(price.replace(/[^0-9.]/g, ""));
 const formatPrice = (amount) => `£${amount.toFixed(2)}`;
 const cartLineKey = ({ sku, size, color }) => [sku, size, color].join("__");
+const normalizeLookup = (value) => value.trim().toLowerCase();
+
+function getOrderStatusIndex(order) {
+  if (!order?.createdAt) return 0;
+  const hoursSinceOrder = Math.max(0, (Date.now() - new Date(order.createdAt).getTime()) / 36e5);
+  return Math.min(orderStatusSteps.length - 1, Math.floor(hoursSinceOrder / 24));
+}
+
+function formatOrderDate(value) {
+  if (!value) return "Today";
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
 
 function readStoredJson(key, fallback) {
   try {
@@ -1491,6 +1539,14 @@ function OrderConfirmationPage({ cartCount = 0, order }) {
               })}
             </div>
             <div className="order-actions">
+              <a className="button button-primary" href={`/track-order?order=${order.id}`}>
+                <span>Track order</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/help#return-request">
+                <span>Start return</span>
+                <ArrowIcon />
+              </a>
               <a className="button button-primary" href="/shop">
                 <span>Continue shopping</span>
                 <ArrowIcon />
@@ -2716,6 +2772,428 @@ function ShippingReturnsPage({ cartCount = 0 }) {
               <p>Refunds process to the original payment method. Exchanges are held only while release stock remains.</p>
             </article>
           </div>
+          <a className="button button-primary support-inline-cta" href="/help#return-request">
+            <span>Start a return request</span>
+            <ArrowIcon />
+          </a>
+        </section>
+      </main>
+
+      <Footer page="support" />
+    </div>
+  );
+}
+
+function OrderTimeline({ order }) {
+  const activeIndex = getOrderStatusIndex(order);
+
+  return (
+    <ol className="tracking-timeline">
+      {orderStatusSteps.map((step, index) => (
+        <li className={index <= activeIndex ? "is-active" : ""} key={step.title}>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <strong>{step.title}</strong>
+          <p>{step.copy}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function OrderTrackingPage({ cartCount = 0, order }) {
+  const queryOrderId = new URLSearchParams(window.location.search).get("order") ?? "";
+  const hasLinkedOrder = Boolean(order && queryOrderId && normalizeLookup(order.id) === normalizeLookup(queryOrderId));
+  const [lookup, setLookup] = useState({
+    orderId: queryOrderId,
+    email: hasLinkedOrder ? order.customer.email : "",
+  });
+  const [result, setResult] = useState(hasLinkedOrder ? "found" : null);
+  const matchedOrder = result === "found" ? order : null;
+
+  const updateLookup = (field, value) => {
+    setLookup((current) => ({ ...current, [field]: value }));
+    setResult(null);
+  };
+
+  const fillLatestOrder = () => {
+    if (!order) return;
+    setLookup({ orderId: order.id, email: order.customer.email });
+    setResult("found");
+  };
+
+  const handleLookup = (event) => {
+    event.preventDefault();
+    const orderId = normalizeLookup(lookup.orderId).replace("#", "");
+    const email = normalizeLookup(lookup.email);
+    const isMatch = Boolean(
+      order &&
+        normalizeLookup(order.id) === orderId &&
+        normalizeLookup(order.customer.email) === email,
+    );
+    setResult(isMatch ? "found" : "missing");
+  };
+
+  return (
+    <div className="shop-shell support-shell tracking-shell" id="top">
+      <Header page="support" cartCount={cartCount} />
+
+      <main className="support-page tracking-page" aria-labelledby="tracking-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <span>Track order</span>
+        </nav>
+
+        <section className="support-hero tracking-hero">
+          <div className="support-hero-copy">
+            <span>UNUSUAL / ORDER STATUS</span>
+            <h1 id="tracking-heading">Track The Signal</h1>
+            <p>
+              Enter the order number and email from checkout. In this preview, tracking reads from the latest order
+              stored in your browser session.
+            </p>
+            <div className="support-actions">
+              <a className="button button-primary" href="/help">
+                <span>Get help</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/shipping-returns">
+                <span>Delivery policy</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="support-hero-media" aria-label="UNUSUAL order tracking reference">
+            <img
+              src="/assets/unusual-drop-accessories.png"
+              alt="Model wearing black UNUSUAL technical layers with utility accessories."
+              style={{ objectPosition: "50% 34%" }}
+            />
+            <span>TRACKING_SIGNAL_ACTIVE</span>
+          </div>
+        </section>
+
+        <section className="tracking-layout" aria-label="Order tracking form and status">
+          <form className="tracking-form support-panel" onSubmit={handleLookup}>
+            <div className="support-panel-head">
+              <span>01 / LOOKUP</span>
+              <h2>Find order</h2>
+            </div>
+            <label>
+              <span>Order number</span>
+              <input
+                value={lookup.orderId}
+                onChange={(event) => updateLookup("orderId", event.target.value)}
+                placeholder="UN-000000"
+                required
+              />
+            </label>
+            <label>
+              <span>Email address</span>
+              <input
+                type="email"
+                value={lookup.email}
+                onChange={(event) => updateLookup("email", event.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </label>
+            <div className="tracking-form-actions">
+              <button className="button button-primary" type="submit">
+                <span>Track order</span>
+                <ArrowIcon />
+              </button>
+              <button className="button button-secondary" type="button" onClick={fillLatestOrder} disabled={!order}>
+                <span>Use latest order</span>
+                <ArrowIcon />
+              </button>
+            </div>
+            <p>{order ? "Use latest order for the demo checkout you completed in this browser." : "Complete checkout once to create a preview order."}</p>
+          </form>
+
+          <div className={`tracking-result support-panel ${matchedOrder ? "is-found" : ""}`}>
+            {matchedOrder ? (
+              <>
+                <div className="support-panel-head">
+                  <span>02 / STATUS</span>
+                  <h2>{orderStatusSteps[getOrderStatusIndex(matchedOrder)].title}</h2>
+                </div>
+                <div className="tracking-order-meta">
+                  <div>
+                    <span>Order</span>
+                    <strong>{matchedOrder.id}</strong>
+                  </div>
+                  <div>
+                    <span>Date</span>
+                    <strong>{formatOrderDate(matchedOrder.createdAt)}</strong>
+                  </div>
+                  <div>
+                    <span>Delivery</span>
+                    <strong>{matchedOrder.shipping.name}</strong>
+                  </div>
+                </div>
+                <TrackingSummary order={matchedOrder} />
+                <OrderTimeline order={matchedOrder} />
+              </>
+            ) : (
+              <>
+                <div className="support-panel-head">
+                  <span>02 / STATUS</span>
+                  <h2>{result === "missing" ? "No Match" : "Ready To Search"}</h2>
+                </div>
+                <p>
+                  {result === "missing"
+                    ? "No matching preview order was found. Check the order number and email, or use the latest order button after completing checkout."
+                    : "Your status timeline will appear here once the order details match the latest preview checkout."}
+                </p>
+                <OrderTimeline order={order} />
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+
+      <Footer page="support" />
+    </div>
+  );
+}
+
+function TrackingSummary({ order }) {
+  return (
+    <div className="tracking-summary">
+      {order.items.map((item) => {
+        const product = getProduct(item.sku);
+        if (!product) return null;
+
+        return (
+          <article key={item.key}>
+            <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+            <span>
+              <strong>{product.name}</strong>
+              <small>{item.quantity} x {item.size} / {item.color}</small>
+            </span>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function HelpPage({ cartCount = 0, order }) {
+  const [contactForm, setContactForm] = useState({
+    topic: "Order question",
+    email: order?.customer?.email ?? "",
+    orderId: order?.id ?? "",
+    message: "",
+  });
+  const [contactSent, setContactSent] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    itemKey: order?.items?.[0]?.key ?? "",
+    reason: returnReasons[0],
+    note: "",
+  });
+  const [returnSent, setReturnSent] = useState(false);
+
+  const updateContact = (field, value) => {
+    setContactForm((current) => ({ ...current, [field]: value }));
+    setContactSent(false);
+  };
+
+  const updateReturn = (field, value) => {
+    setReturnForm((current) => ({ ...current, [field]: value }));
+    setReturnSent(false);
+  };
+
+  const handleContactSubmit = (event) => {
+    event.preventDefault();
+    setContactSent(true);
+  };
+
+  const handleReturnSubmit = (event) => {
+    event.preventDefault();
+    if (!order) return;
+    setReturnSent(true);
+  };
+
+  const selectedReturnItem = order?.items?.find((item) => item.key === returnForm.itemKey) ?? order?.items?.[0];
+  const selectedReturnProduct = selectedReturnItem ? getProduct(selectedReturnItem.sku) : null;
+
+  return (
+    <div className="shop-shell support-shell help-shell" id="top">
+      <Header page="support" cartCount={cartCount} />
+
+      <main className="support-page help-page" aria-labelledby="help-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <span>Help</span>
+        </nav>
+
+        <section className="support-hero help-hero">
+          <div className="support-hero-copy">
+            <span>UNUSUAL / SUPPORT DESK</span>
+            <h1 id="help-heading">Help Without Noise</h1>
+            <p>
+              Track an order, ask about sizing, start a return, or send a press note. This preview simulates the
+              support flow without sending real messages.
+            </p>
+            <div className="support-actions">
+              <a className="button button-primary" href="/track-order">
+                <span>Track order</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="#return-request">
+                <span>Start return</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="support-hero-media" aria-label="UNUSUAL support reference">
+            <img
+              src="/assets/unusual-drop-knit.png"
+              alt="Model wearing washed charcoal UNUSUAL hoodie."
+              style={{ objectPosition: "54% 32%" }}
+            />
+            <span>SUPPORT_SIGNAL_READY</span>
+          </div>
+        </section>
+
+        <section className="help-topic-grid" aria-label="Help topics">
+          {helpTopics.map((topic, index) => (
+            <a href={topic.href} key={topic.title} style={{ "--topic-index": index }}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h2>{topic.title}</h2>
+              <p>{topic.copy}</p>
+            </a>
+          ))}
+        </section>
+
+        <section className="help-workspace" aria-label="Support forms">
+          <form className={`support-panel help-form ${contactSent ? "is-complete" : ""}`} onSubmit={handleContactSubmit}>
+            <div className="support-panel-head">
+              <span>01 / CONTACT</span>
+              <h2>Send a support note</h2>
+            </div>
+            <label>
+              <span>Topic</span>
+              <select value={contactForm.topic} onChange={(event) => updateContact("topic", event.target.value)}>
+                {helpTopics.map((topic) => (
+                  <option key={topic.title}>{topic.title}</option>
+                ))}
+              </select>
+            </label>
+            <div className="help-field-grid">
+              <label>
+                <span>Email</span>
+                <input
+                  type="email"
+                  value={contactForm.email}
+                  onChange={(event) => updateContact("email", event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                <span>Order optional</span>
+                <input value={contactForm.orderId} onChange={(event) => updateContact("orderId", event.target.value)} />
+              </label>
+            </div>
+            <label>
+              <span>Message</span>
+              <textarea
+                value={contactForm.message}
+                onChange={(event) => updateContact("message", event.target.value)}
+                placeholder="Tell us what you need."
+                required
+              />
+            </label>
+            <button className="button button-primary" type="submit">
+              <span>{contactSent ? "Note queued" : "Send note"}</span>
+              <ArrowIcon />
+            </button>
+            <p aria-live="polite">
+              {contactSent ? "Support note queued for this preview." : "Preview only. No real email is sent."}
+            </p>
+          </form>
+
+          <form
+            className={`support-panel return-form ${returnSent ? "is-complete" : ""}`}
+            id="return-request"
+            onSubmit={handleReturnSubmit}
+          >
+            <div className="support-panel-head">
+              <span>02 / RETURNS</span>
+              <h2>Request return</h2>
+            </div>
+            {order ? (
+              <>
+                <label>
+                  <span>Item</span>
+                  <select value={returnForm.itemKey} onChange={(event) => updateReturn("itemKey", event.target.value)}>
+                    {order.items.map((item) => {
+                      const product = getProduct(item.sku);
+                      return (
+                        <option key={item.key} value={item.key}>
+                          {product?.name ?? item.sku} / {item.size}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+                <label>
+                  <span>Reason</span>
+                  <select value={returnForm.reason} onChange={(event) => updateReturn("reason", event.target.value)}>
+                    {returnReasons.map((reason) => (
+                      <option key={reason}>{reason}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Notes optional</span>
+                  <textarea
+                    value={returnForm.note}
+                    onChange={(event) => updateReturn("note", event.target.value)}
+                    placeholder="Add exchange size, fault detail, or anything useful."
+                  />
+                </label>
+                {selectedReturnProduct && selectedReturnItem && (
+                  <article className="return-preview">
+                    <img
+                      src={selectedReturnProduct.image}
+                      alt={selectedReturnProduct.alt}
+                      style={{ objectPosition: selectedReturnProduct.position }}
+                    />
+                    <span>
+                      <strong>{selectedReturnProduct.name}</strong>
+                      <small>{selectedReturnItem.size} / {selectedReturnItem.color}</small>
+                    </span>
+                  </article>
+                )}
+                <button className="button button-primary" type="submit">
+                  <span>{returnSent ? "Request started" : "Start return"}</span>
+                  <ArrowIcon />
+                </button>
+                <p aria-live="polite">
+                  {returnSent
+                    ? `Return request queued for ${selectedReturnProduct?.name ?? "this item"}.`
+                    : "Returns are available for unworn pieces within 14 days of delivery."}
+                </p>
+              </>
+            ) : (
+              <div className="return-empty">
+                <p>Complete a preview checkout first, then return here to select an item from the latest order.</p>
+                <a className="button button-secondary" href="/shop">
+                  <span>Shop SS26</span>
+                  <ArrowIcon />
+                </a>
+              </div>
+            )}
+          </form>
         </section>
       </main>
 
@@ -2792,9 +3270,10 @@ function Footer({ page = "home" }) {
             </div>
             <div>
               <h3>Support</h3>
+              <a href="/track-order">Track Order</a>
               <a href="/size-guide">Size Guide</a>
               <a href="/shipping-returns">Shipping & Returns</a>
-              <a href="mailto:studio@unusual.local">Contact</a>
+              <a href="/help">Help</a>
             </div>
             <div>
               <h3>Social</h3>
@@ -2943,6 +3422,14 @@ export default function App() {
 
   if (pathname === "/order-confirmed") {
     return <OrderConfirmationPage cartCount={cartCount} order={lastOrder} />;
+  }
+
+  if (pathname === "/track-order") {
+    return <OrderTrackingPage cartCount={cartCount} order={lastOrder} />;
+  }
+
+  if (pathname === "/help") {
+    return <HelpPage cartCount={cartCount} order={lastOrder} />;
   }
 
   if (pathname === "/size-guide") {
