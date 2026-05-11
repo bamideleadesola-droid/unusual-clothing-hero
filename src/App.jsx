@@ -230,6 +230,43 @@ const motionLooks = [
   },
 ];
 
+const shopCategories = ["All", "Outerwear", "Jerseys", "Logo Knit", "Trousers", "Accessories"];
+
+const productDetails = {
+  "signal-coat": {
+    fit: "Oversized shell fit",
+    fabric: "Water-repellent nylon / cotton lining",
+    status: "Private release",
+  },
+  "redline-jersey": {
+    fit: "Relaxed match fit",
+    fabric: "Breathable mesh / paneled poly",
+    status: "New signal",
+  },
+  "name-hoodie": {
+    fit: "Dropped shoulder fit",
+    fabric: "Washed heavyweight cotton",
+    status: "Low run",
+  },
+  "utility-bag": {
+    fit: "Adjustable crossbody",
+    fabric: "Matte nylon / metal hardware",
+    status: "Carry system",
+  },
+  "red-gloves": {
+    fit: "Close hand fit",
+    fabric: "Gloss leather finish",
+    status: "Accessory drop",
+  },
+  "cargo-trouser": {
+    fit: "Wide stacked fit",
+    fabric: "Cotton twill / reflective tape",
+    status: "Core piece",
+  },
+};
+
+const slugify = (value) => value.toLowerCase().replace(/\s+/g, "-");
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 28 16" focusable="false">
@@ -239,23 +276,29 @@ function ArrowIcon() {
   );
 }
 
-function Header() {
+function Header({ page = "home" }) {
+  const homeHref = page === "home" ? "#top" : "/";
+  const lookbookHref = page === "home" ? "#archive" : "/#archive";
+  const waitlistHref = page === "home" ? "#journal" : "/#journal";
+
   return (
     <header className="site-header" aria-label="Primary navigation">
       <div className="brand-lockup">
-        <a className="brand" href="#top" aria-label="UNUSUAL home">
+        <a className="brand" href={homeHref} aria-label="UNUSUAL home">
           <span className="brand-symbol" aria-hidden="true" />
           <span className="brand-name">UNUSUAL</span>
         </a>
         <span className="drop-code">SS26</span>
       </div>
       <nav className="nav-links" aria-label="Main menu">
-        <a href="#shop">Shop</a>
-        <a href="#archive">Lookbook</a>
-        <a href="#journal">Waitlist</a>
+        <a href="/shop" aria-current={page === "shop" ? "page" : undefined}>
+          Shop
+        </a>
+        <a href={lookbookHref}>Lookbook</a>
+        <a href={waitlistHref}>Waitlist</a>
       </nav>
       <div className="header-actions">
-        <a className="lookbook-link" href="#journal">
+        <a className="lookbook-link" href={waitlistHref}>
           Join Waitlist
         </a>
         <a className="bag-link" href="#bag" aria-label="Open shopping bag">
@@ -264,6 +307,170 @@ function Header() {
         </a>
       </div>
     </header>
+  );
+}
+
+function ShopPage() {
+  const initialCategory = (() => {
+    const category = new URLSearchParams(window.location.search).get("category");
+    if (!category) return "All";
+    return shopCategories.find((item) => slugify(item) === category) ?? "All";
+  })();
+
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [sortMode, setSortMode] = useState("newest");
+  const [selectedSku, setSelectedSku] = useState(
+    releaseProducts.find((product) => initialCategory === "All" || product.tag === initialCategory)?.sku ??
+      releaseProducts[0].sku,
+  );
+  const selectedProduct = releaseProducts.find((product) => product.sku === selectedSku) ?? releaseProducts[0];
+  const selectedDetails = productDetails[selectedProduct.sku];
+
+  const visibleProducts = releaseProducts
+    .filter((product) => activeCategory === "All" || product.tag === activeCategory)
+    .sort((left, right) => {
+      const leftPrice = Number(left.price.replace("$", ""));
+      const rightPrice = Number(right.price.replace("$", ""));
+      if (sortMode === "price-low") return leftPrice - rightPrice;
+      if (sortMode === "price-high") return rightPrice - leftPrice;
+      return releaseProducts.findIndex((product) => product.sku === left.sku) -
+        releaseProducts.findIndex((product) => product.sku === right.sku);
+    });
+
+  const selectCategory = (category) => {
+    setActiveCategory(category);
+    setSelectedSku(
+      releaseProducts.find((product) => category === "All" || product.tag === category)?.sku ?? releaseProducts[0].sku,
+    );
+    const url = category === "All" ? "/shop" : `/shop?category=${slugify(category)}`;
+    window.history.replaceState(null, "", url);
+  };
+
+  return (
+    <div className="shop-shell" id="top">
+      <Header page="shop" />
+
+      <main className="shop-page" aria-labelledby="shop-page-heading">
+        <section className="shop-hero">
+          <div className="shop-hero-copy">
+            <span>UNUSUAL / SHOP</span>
+            <h1 id="shop-page-heading">Shop SS26</h1>
+          </div>
+          <p>
+            Technical pieces, logo layers, and hard accessories from the private release. Filter the drop and build
+            the uniform one piece at a time.
+          </p>
+        </section>
+
+        <section className="shop-controls" aria-label="Shop controls">
+          <div className="shop-filter-group" aria-label="Filter products by category">
+            {shopCategories.map((category) => (
+              <button
+                type="button"
+                className={activeCategory === category ? "is-active" : ""}
+                key={category}
+                onClick={() => selectCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="shop-sort" aria-label="Sort products">
+            <span>Sort</span>
+            {[
+              ["newest", "Newest"],
+              ["price-low", "Low"],
+              ["price-high", "High"],
+            ].map(([value, label]) => (
+              <button
+                type="button"
+                className={sortMode === value ? "is-active" : ""}
+                key={value}
+                onClick={() => setSortMode(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="shop-layout" aria-label="Shop product list">
+          <aside className="shop-inspector" aria-label="Selected product">
+            <div className="shop-inspector-media">
+              <img
+                src={selectedProduct.image}
+                alt={selectedProduct.alt}
+                style={{ objectPosition: selectedProduct.position }}
+              />
+              <span>{selectedDetails.status}</span>
+            </div>
+            <div className="shop-inspector-copy">
+              <span>{selectedProduct.tag}</span>
+              <h2>{selectedProduct.name}</h2>
+              <p>{selectedProduct.price}</p>
+              <dl>
+                <div>
+                  <dt>Fit</dt>
+                  <dd>{selectedDetails.fit}</dd>
+                </div>
+                <div>
+                  <dt>Fabric</dt>
+                  <dd>{selectedDetails.fabric}</dd>
+                </div>
+              </dl>
+              <a className="button shop-detail-link" href="#shop-products">
+                <span>Browse pieces</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </aside>
+
+          <div className="shop-product-grid" id="shop-products">
+            <div className="shop-count">
+              <span>{String(visibleProducts.length).padStart(2, "0")} pieces</span>
+              <span>{activeCategory}</span>
+            </div>
+
+            <div className="shop-products">
+              {visibleProducts.map((product, index) => {
+                const details = productDetails[product.sku];
+                const isSelected = selectedProduct.sku === product.sku;
+
+                return (
+                  <article className={`shop-product ${isSelected ? "is-selected" : ""}`} key={product.sku}>
+                    <button
+                      type="button"
+                      className="shop-product-button"
+                      onClick={() => setSelectedSku(product.sku)}
+                      aria-pressed={isSelected}
+                    >
+                      <span className="shop-product-image">
+                        <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                        <i>{details.status}</i>
+                      </span>
+                      <span className="shop-product-copy">
+                        <span>
+                          <em>{String(index + 1).padStart(2, "0")}</em>
+                          {product.tag}
+                        </span>
+                        <strong>{product.name}</strong>
+                        <span>
+                          <small>{details.fit}</small>
+                          <b>{product.price}</b>
+                        </span>
+                      </span>
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer page="shop" />
+    </div>
   );
 }
 
@@ -865,9 +1072,10 @@ function Hero() {
   );
 }
 
-function Footer() {
+function Footer({ page = "home" }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
+  const homeAnchor = (anchor) => (page === "home" ? `#${anchor}` : `/#${anchor}`);
 
   const handleFooterSignup = (event) => {
     event.preventDefault();
@@ -920,15 +1128,15 @@ function Footer() {
           <nav className="footer-links" aria-label="Footer navigation">
             <div>
               <h3>Shop</h3>
-              <a href="#shop">Outerwear</a>
-              <a href="#shop">Jerseys</a>
-              <a href="#shop">Accessories</a>
+              <a href="/shop?category=outerwear">Outerwear</a>
+              <a href="/shop?category=jerseys">Jerseys</a>
+              <a href="/shop?category=accessories">Accessories</a>
             </div>
             <div>
               <h3>Brand</h3>
-              <a href="#archive">Lookbook</a>
-              <a href="#journal">Waitlist</a>
-              <a href="#top">SS26 Campaign</a>
+              <a href={homeAnchor("archive")}>Lookbook</a>
+              <a href={homeAnchor("journal")}>Waitlist</a>
+              <a href={homeAnchor("top")}>SS26 Campaign</a>
             </div>
             <div>
               <h3>Social</h3>
@@ -945,7 +1153,12 @@ function Footer() {
 
         <div className="footer-gallery" aria-label="Featured UNUSUAL pieces">
           {releaseProducts.slice(0, 3).map((product, index) => (
-            <a className="footer-look" href="#shop" key={product.sku} style={{ "--footer-look-index": index }}>
+            <a
+              className="footer-look"
+              href={`/shop?category=${slugify(product.tag)}`}
+              key={product.sku}
+              style={{ "--footer-look-index": index }}
+            >
               <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
               <span>
                 <strong>{product.number}</strong>
@@ -966,6 +1179,13 @@ function Footer() {
 }
 
 export default function App() {
+  const pathname = window.location.pathname.replace(/\/$/, "") || "/";
+  const page = pathname === "/shop" ? "shop" : "home";
+
+  if (page === "shop") {
+    return <ShopPage />;
+  }
+
   return (
     <>
       <Hero />
