@@ -88,7 +88,7 @@ const releaseProducts = [
     number: "01",
     name: "Tactical Signal Coat",
     tag: "Outerwear",
-    price: "$268",
+    price: "£268",
     image: "/assets/unusual-drop-outerwear.png",
     alt: "Black tactical coat with UNUSUAL branding worn by a model.",
     position: "50% 30%",
@@ -103,7 +103,7 @@ const releaseProducts = [
     number: "02",
     name: "Redline Match Jersey",
     tag: "Jerseys",
-    price: "$98",
+    price: "£98",
     image: "/assets/unusual-drop-jersey.png",
     alt: "Red and black jersey with UNUSUAL branding worn by a model.",
     position: "50% 30%",
@@ -118,7 +118,7 @@ const releaseProducts = [
     number: "03",
     name: "Washed Name Hoodie",
     tag: "Logo Knit",
-    price: "$148",
+    price: "£148",
     image: "/assets/unusual-drop-knit.png",
     alt: "Washed charcoal hoodie with UNUSUAL branding worn by a model.",
     position: "54% 32%",
@@ -133,7 +133,7 @@ const releaseProducts = [
     number: "04",
     name: "Utility Crossbody Bag",
     tag: "Accessories",
-    price: "$88",
+    price: "£88",
     image: "/assets/unusual-drop-accessories.png",
     alt: "Black crossbody utility bag with UNUSUAL patch.",
     position: "50% 32%",
@@ -145,7 +145,7 @@ const releaseProducts = [
     number: "05",
     name: "Red Signal Gloves",
     tag: "Accessories",
-    price: "$68",
+    price: "£68",
     image: "/assets/unusual-product-gloves.png",
     alt: "Glossy deep red leather gloves styled with black technical clothing.",
     position: "50% 48%",
@@ -157,7 +157,7 @@ const releaseProducts = [
     number: "06",
     name: "Wide Cargo Trouser",
     tag: "Trousers",
-    price: "$158",
+    price: "£158",
     image: "/assets/unusual-product-trouser.png",
     alt: "Oversized black wide cargo trousers with reflective side tape.",
     position: "50% 46%",
@@ -290,9 +290,9 @@ const productDetails = {
 };
 
 const shippingMethods = [
-  { id: "standard", name: "Standard signal", eta: "4-6 business days", price: 0 },
-  { id: "express", name: "Express movement", eta: "2 business days", price: 18 },
-  { id: "overnight", name: "Overnight dispatch", eta: "Next business day", price: 34 },
+  { id: "standard", name: "UK tracked", eta: "2-4 working days", price: 0 },
+  { id: "express", name: "Next-day UK", eta: "1 working day", price: 7 },
+  { id: "london", name: "London courier", eta: "Same day inside M25", price: 18 },
 ];
 
 const CART_STORAGE_KEY = "unusual-cart-v1";
@@ -304,8 +304,8 @@ const promoCodes = {
 
 const slugify = (value) => value.toLowerCase().replace(/\s+/g, "-");
 const getProduct = (sku) => releaseProducts.find((product) => product.sku === sku);
-const parsePrice = (price) => Number(price.replace("$", ""));
-const formatPrice = (amount) => `$${amount.toFixed(2)}`;
+const parsePrice = (price) => Number(price.replace(/[^0-9.]/g, ""));
+const formatPrice = (amount) => `£${amount.toFixed(2)}`;
 const cartLineKey = ({ sku, size, color }) => [sku, size, color].join("__");
 
 function readStoredJson(key, fallback) {
@@ -325,8 +325,8 @@ function getCartTotals(items, shippingPrice = 0, promoCode = "") {
   const promo = promoCodes[promoCode.toUpperCase()];
   const discount = promo ? subtotal * promo.rate : 0;
   const taxable = Math.max(0, subtotal - discount);
-  const tax = taxable * 0.0825;
-  const total = taxable + tax + shippingPrice;
+  const total = taxable + shippingPrice;
+  const tax = total * (20 / 120);
 
   return { subtotal, discount, tax, shipping: shippingPrice, total, promo };
 }
@@ -395,8 +395,8 @@ function ShopPage({ cartCount = 0, addToCart }) {
   const visibleProducts = releaseProducts
     .filter((product) => activeCategory === "All" || product.tag === activeCategory)
     .sort((left, right) => {
-      const leftPrice = Number(left.price.replace("$", ""));
-      const rightPrice = Number(right.price.replace("$", ""));
+      const leftPrice = parsePrice(left.price);
+      const rightPrice = parsePrice(right.price);
       if (sortMode === "price-low") return leftPrice - rightPrice;
       if (sortMode === "price-high") return rightPrice - leftPrice;
       return releaseProducts.findIndex((product) => product.sku === left.sku) -
@@ -779,14 +779,14 @@ function CommerceTotals({ totals }) {
       </div>
       <div>
         <dt>Discount</dt>
-        <dd>{totals.discount > 0 ? `-${formatPrice(totals.discount)}` : "$0.00"}</dd>
+        <dd>{totals.discount > 0 ? `-${formatPrice(totals.discount)}` : formatPrice(0)}</dd>
       </div>
       <div>
         <dt>Shipping</dt>
         <dd>{totals.shipping === 0 ? "Free" : formatPrice(totals.shipping)}</dd>
       </div>
       <div>
-        <dt>Estimated tax</dt>
+        <dt>VAT included</dt>
         <dd>{formatPrice(totals.tax)}</dd>
       </div>
       <div className="is-total">
@@ -866,7 +866,7 @@ function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem
     city: "",
     state: "",
     zip: "",
-    country: "United States",
+    country: "United Kingdom",
     cardName: "",
     cardNumber: "",
     expiry: "",
@@ -890,10 +890,12 @@ function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem
       if (!form.lastName.trim()) nextErrors.lastName = "Last name is required.";
     }
     if (targetStep === "delivery") {
-      ["address", "city", "state", "zip"].forEach((field) => {
+      ["address", "city", "zip"].forEach((field) => {
         if (!form[field].trim()) nextErrors[field] = "Required.";
       });
-      if (form.zip && !/^\d{5}(-\d{4})?$/.test(form.zip)) nextErrors.zip = "Use a valid ZIP code.";
+      if (form.zip && !/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i.test(form.zip.trim())) {
+        nextErrors.zip = "Use a valid UK postcode.";
+      }
     }
     if (targetStep === "payment") {
       const cardNumber = form.cardNumber.replace(/\s+/g, "");
@@ -1045,18 +1047,21 @@ function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem
                 </div>
                 <div className="checkout-fields three">
                   <label>
-                    <span>City</span>
+                    <span>Town / City</span>
                     <input value={form.city} onChange={(event) => updateField("city", event.target.value)} />
                     {errors.city && <em>{errors.city}</em>}
                   </label>
                   <label>
-                    <span>State</span>
+                    <span>County optional</span>
                     <input value={form.state} onChange={(event) => updateField("state", event.target.value)} />
                     {errors.state && <em>{errors.state}</em>}
                   </label>
                   <label>
-                    <span>ZIP</span>
-                    <input value={form.zip} onChange={(event) => updateField("zip", event.target.value)} />
+                    <span>Postcode</span>
+                    <input
+                      value={form.zip}
+                      onChange={(event) => updateField("zip", event.target.value.toUpperCase())}
+                    />
                     {errors.zip && <em>{errors.zip}</em>}
                   </label>
                 </div>
@@ -1144,7 +1149,15 @@ function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem
                 </div>
                 <div className="review-block">
                   <span>Ship to</span>
-                  <p>{form.address}{form.apartment ? `, ${form.apartment}` : ""}<br />{form.city}, {form.state} {form.zip}</p>
+                  <p>
+                    {form.address}
+                    {form.apartment ? `, ${form.apartment}` : ""}
+                    <br />
+                    {form.city}
+                    {form.state ? `, ${form.state}` : ""} {form.zip}
+                    <br />
+                    {form.country}
+                  </p>
                 </div>
                 <div className="review-block">
                   <span>Delivery</span>
