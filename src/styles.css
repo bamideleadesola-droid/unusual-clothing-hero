@@ -1817,6 +1817,10 @@ svg {
   transform: translateX(5px);
 }
 
+.code-signup button span {
+  white-space: nowrap;
+}
+
 .code-signup > p {
   min-height: 1.3em;
   margin: 0;
@@ -2658,22 +2662,31 @@ svg {
   }
 
   .signup-row {
-    grid-template-columns: 1fr;
-    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(142px, 0.58fr);
+    min-height: 58px;
   }
 
   .code-signup button {
     min-width: 0;
-    min-height: 56px;
-    padding-inline: 1rem;
-    border-top: 1px solid rgba(255, 250, 240, 0.74);
-    border-left: 0;
+    min-height: 58px;
+    gap: 0.75rem;
+    padding-inline: 0.85rem;
+    border-top: 0;
+    border-left: 1px solid rgba(255, 250, 240, 0.74);
+    font-size: 0.68rem;
+  }
+
+  .code-signup button span {
+    max-width: 8.7ch;
+    line-height: 1.05;
+    white-space: normal;
   }
 
   .code-signup input {
     min-height: 58px;
-    font-size: 0.86rem;
-    letter-spacing: 0.12em;
+    padding-inline: 0.85rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
   }
 
   .code-ticker {
