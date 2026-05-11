@@ -230,6 +230,79 @@ const motionLooks = [
   },
 ];
 
+const lookbookStories = [
+  {
+    number: "01",
+    slug: "outer-shell",
+    chapter: "Movement 01",
+    category: "Outerwear",
+    title: "Outer Shell",
+    copy: "A high-collar city shell, red underlayer flashes, and oversized black volume built for a late exit.",
+    note: "Start here if the first UNUSUAL piece needs to carry the full silhouette.",
+    productSku: "signal-coat",
+    image: "/assets/unusual-drop-outerwear.png",
+    alt: "Model in black tactical outerwear with UNUSUAL printed across the chest.",
+    position: "50% 30%",
+    styling: ["Tactical Signal Coat", "Wide Cargo Trouser", "Red Signal Gloves"],
+  },
+  {
+    number: "02",
+    slug: "redline-jersey",
+    chapter: "Movement 02",
+    category: "Jerseys",
+    title: "Redline Jersey",
+    copy: "A match top made sharper with black cargo weight, cropped shell tension, and front-name energy.",
+    note: "The loudest color in the drop, balanced with utility layers so it still feels wearable.",
+    productSku: "redline-jersey",
+    image: "/assets/unusual-drop-jersey.png",
+    alt: "Model in a red and black UNUSUAL jersey with black technical layers.",
+    position: "48% 32%",
+    styling: ["Redline Match Jersey", "Open Shell Layer", "Black Cargo Shape"],
+  },
+  {
+    number: "03",
+    slug: "washed-name",
+    chapter: "Movement 03",
+    category: "Logo Knit",
+    title: "Washed Name",
+    copy: "Charcoal cotton, broken-in texture, red glove contrast, and a softer logo hit across the chest.",
+    note: "The quiet piece for daily wear, styled with hard accessories so it does not go plain.",
+    productSku: "name-hoodie",
+    image: "/assets/unusual-drop-knit.png",
+    alt: "Model in a washed charcoal UNUSUAL hoodie with red gloves.",
+    position: "54% 32%",
+    styling: ["Washed Name Hoodie", "Stacked Belt Hardware", "Red Signal Gloves"],
+  },
+  {
+    number: "04",
+    slug: "carry-system",
+    chapter: "Movement 04",
+    category: "Accessories",
+    title: "Carry System",
+    copy: "A compact utility kit with bag, eyewear, red gloves, and the brand name stitched into the carry piece.",
+    note: "Use this look when the outfit needs one small object that makes the whole fit feel designed.",
+    productSku: "utility-bag",
+    image: "/assets/unusual-drop-accessories.png",
+    alt: "Model wearing black technical layers with a branded UNUSUAL utility bag and red gloves.",
+    position: "50% 34%",
+    styling: ["Utility Crossbody Bag", "Red Signal Gloves", "Matte Buckle System"],
+  },
+  {
+    number: "05",
+    slug: "night-trouser",
+    chapter: "Movement 05",
+    category: "Trousers",
+    title: "Night Trouser",
+    copy: "Wide cargo volume with reflective side tape, heavy footwear balance, and a low-light stance.",
+    note: "The grounding piece: built to make oversized tops and outerwear sit with intention.",
+    productSku: "cargo-trouser",
+    image: "/assets/unusual-product-trouser.png",
+    alt: "Oversized black wide cargo trousers with reflective side tape.",
+    position: "50% 46%",
+    styling: ["Wide Cargo Trouser", "Heavy Footwear Stance", "Low-Light Tape"],
+  },
+];
+
 const shopCategories = ["All", "Outerwear", "Jerseys", "Logo Knit", "Trousers", "Accessories"];
 
 const productDetails = {
@@ -342,9 +415,10 @@ function ArrowIcon() {
 
 function Header({ page = "home", cartCount = 0 }) {
   const homeHref = page === "home" ? "#top" : "/";
-  const lookbookHref = page === "home" ? "#archive" : "/#archive";
+  const lookbookHref = "/lookbook";
   const waitlistHref = page === "home" ? "#journal" : "/#journal";
   const isShopCurrent = page === "shop" || page === "product";
+  const isLookbookCurrent = page === "lookbook";
 
   return (
     <header className="site-header" aria-label="Primary navigation">
@@ -359,7 +433,9 @@ function Header({ page = "home", cartCount = 0 }) {
         <a href="/shop" aria-current={isShopCurrent ? "page" : undefined}>
           Shop
         </a>
-        <a href={lookbookHref}>Lookbook</a>
+        <a href={lookbookHref} aria-current={isLookbookCurrent ? "page" : undefined}>
+          Lookbook
+        </a>
         <a href={waitlistHref}>Waitlist</a>
       </nav>
       <div className="header-actions">
@@ -1488,7 +1564,7 @@ function SeenInMotion() {
             <span>{String(motionLooks.length).padStart(2, "0")}</span>
           </div>
 
-          <a className="button motion-cta" href="#shop">
+          <a className="button motion-cta" href="/lookbook">
             <span>View full lookbook</span>
             <ArrowIcon />
           </a>
@@ -1698,7 +1774,7 @@ function DropIndex() {
                       <span>Shop this look</span>
                       <ArrowIcon />
                     </a>
-                    <a className="button button-secondary" href="#archive">
+                    <a className="button button-secondary" href="/lookbook">
                       <span>View details</span>
                       <ArrowIcon />
                     </a>
@@ -1883,7 +1959,7 @@ function Hero({ cartCount = 0 }) {
               <span>Shop the drop</span>
               <ArrowIcon />
             </a>
-            <a className="button button-secondary" href="#archive">
+            <a className="button button-secondary" href="/lookbook">
               <span>View lookbook</span>
               <ArrowIcon />
             </a>
@@ -1893,6 +1969,216 @@ function Hero({ cartCount = 0 }) {
 
       <CategoryRail activeIndex={activeIndex} onSelectSlide={showSlide} />
     </main>
+  );
+}
+
+function LookbookPage({ cartCount = 0 }) {
+  const [activeStory, setActiveStory] = useState(lookbookStories[0].slug);
+  const [email, setEmail] = useState("");
+  const [isJoined, setIsJoined] = useState(false);
+  const storyRefs = useRef([]);
+  const activeIndex = Math.max(0, lookbookStories.findIndex((story) => story.slug === activeStory));
+  const activeLook = lookbookStories[activeIndex] ?? lookbookStories[0];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+
+        if (visible?.target?.dataset?.lookSlug) {
+          setActiveStory(visible.target.dataset.lookSlug);
+        }
+      },
+      {
+        rootMargin: "-34% 0px -34% 0px",
+        threshold: [0.18, 0.42, 0.68],
+      },
+    );
+
+    storyRefs.current.forEach((node) => {
+      if (node) observer.observe(node);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const jumpToStory = (index) => {
+    const target = storyRefs.current[index];
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleLookbookJoin = (event) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    setIsJoined(true);
+  };
+
+  return (
+    <div className="lookbook-shell" id="top" style={{ "--active-look": activeIndex }}>
+      <Header page="lookbook" cartCount={cartCount} />
+
+      <main className="lookbook-page" aria-labelledby="lookbook-heading">
+        <section className="lookbook-hero">
+          <div className="lookbook-hero-copy">
+            <span>UNUSUAL / LOOKBOOK</span>
+            <h1 id="lookbook-heading">Lookbook SS26</h1>
+            <p>
+              Five styled frames from the private release. Move through the silhouettes, then shop the exact piece that
+              anchors each look.
+            </p>
+            <div className="lookbook-hero-actions" aria-label="Lookbook actions">
+              <a className="button button-primary" href={`/product/${activeLook.productSku}`}>
+                <span>Shop active look</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/shop">
+                <span>Open full shop</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="lookbook-hero-media" aria-label={`Current look: ${activeLook.title}`}>
+            <div className="lookbook-hero-primary">
+              <img src={activeLook.image} alt={activeLook.alt} style={{ objectPosition: activeLook.position }} />
+              <span>{activeLook.chapter}</span>
+            </div>
+            <div className="lookbook-hero-secondary" aria-hidden="true">
+              <img
+                src={lookbookStories[(activeIndex + 1) % lookbookStories.length].image}
+                alt=""
+                style={{ objectPosition: lookbookStories[(activeIndex + 1) % lookbookStories.length].position }}
+              />
+            </div>
+            <div className="lookbook-hero-meter" aria-hidden="true">
+              <span>{activeLook.number}</span>
+              <i style={{ "--meter-progress": (activeIndex + 1) / lookbookStories.length }} />
+              <span>{String(lookbookStories.length).padStart(2, "0")}</span>
+            </div>
+          </div>
+        </section>
+
+        <nav className="lookbook-quick-nav" aria-label="Jump to look">
+          {lookbookStories.map((story, index) => (
+            <button
+              type="button"
+              className={activeStory === story.slug ? "is-active" : ""}
+              key={story.slug}
+              onClick={() => jumpToStory(index)}
+            >
+              <span>{story.number}</span>
+              <strong>{story.title}</strong>
+              <em>{story.category}</em>
+            </button>
+          ))}
+        </nav>
+
+        <div className="lookbook-marquee" aria-hidden="true">
+          <span>NO NOISE / FULL LOOKS / SHOP THE FRAME / PRIVATE RELEASE / </span>
+          <span>NO NOISE / FULL LOOKS / SHOP THE FRAME / PRIVATE RELEASE / </span>
+        </div>
+
+        <section className="lookbook-story-list" aria-label="Styled looks">
+          {lookbookStories.map((story, index) => {
+            const product = getProduct(story.productSku);
+
+            return (
+              <article
+                className="lookbook-story"
+                data-look-slug={story.slug}
+                key={story.slug}
+                ref={(node) => {
+                  storyRefs.current[index] = node;
+                }}
+                style={{ "--story-index": index }}
+              >
+                <div className="lookbook-story-media">
+                  <img src={story.image} alt={story.alt} style={{ objectPosition: story.position }} />
+                  <span className="lookbook-story-index">{story.number}</span>
+                  <span className="lookbook-story-tag">{story.chapter}</span>
+                </div>
+
+                <div className="lookbook-story-copy">
+                  <span>{story.category}</span>
+                  <h2>{story.title}</h2>
+                  <p>{story.copy}</p>
+                  <ul>
+                    {story.styling.map((piece) => (
+                      <li key={piece}>{piece}</li>
+                    ))}
+                  </ul>
+                  <div className="lookbook-story-footer">
+                    <p>{story.note}</p>
+                    <a className="button button-primary" href={`/product/${story.productSku}`}>
+                      <span>{product ? `${product.price} / Shop this look` : "Shop this look"}</span>
+                      <ArrowIcon />
+                    </a>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        <section className="lookbook-strip" aria-labelledby="lookbook-strip-heading">
+          <div className="lookbook-strip-head">
+            <span>// GARMENT_MAP</span>
+            <h2 id="lookbook-strip-heading">Shop By Frame</h2>
+          </div>
+          <div className="lookbook-strip-rail" aria-label="Lookbook product rail">
+            {lookbookStories.map((story) => {
+              const product = getProduct(story.productSku);
+
+              return (
+                <a className="lookbook-strip-card" href={`/product/${story.productSku}`} key={story.slug}>
+                  <img src={story.image} alt={story.alt} style={{ objectPosition: story.position }} />
+                  <span>
+                    <strong>{story.number}</strong>
+                    {product?.name ?? story.title}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="lookbook-closing" aria-labelledby="lookbook-closing-heading">
+          <div>
+            <span>PRIVATE_RELEASE_001</span>
+            <h2 id="lookbook-closing-heading">Private release. No noise.</h2>
+            <p>Join the list for the next signal, early sizing notes, and first access before the wider shop opens.</p>
+          </div>
+
+          <form className={`lookbook-signup ${isJoined ? "is-complete" : ""}`} onSubmit={handleLookbookJoin}>
+            <label htmlFor="lookbook-email">Get the next signal first.</label>
+            <div className="lookbook-signup-row">
+              <input
+                id="lookbook-email"
+                type="email"
+                name="lookbook-email"
+                placeholder=">_ Email address"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setIsJoined(false);
+                }}
+                required
+              />
+              <button type="submit">
+                <span>{isJoined ? "Joined" : "Join waitlist"}</span>
+                <ArrowIcon />
+              </button>
+            </div>
+            <p aria-live="polite">{isJoined ? "Signal received. You're on the list." : "No spam. Drops only."}</p>
+          </form>
+        </section>
+      </main>
+
+      <Footer page="lookbook" />
+    </div>
   );
 }
 
@@ -1958,7 +2244,7 @@ function Footer({ page = "home" }) {
             </div>
             <div>
               <h3>Brand</h3>
-              <a href={homeAnchor("archive")}>Lookbook</a>
+              <a href="/lookbook">Lookbook</a>
               <a href={homeAnchor("journal")}>Waitlist</a>
               <a href={homeAnchor("top")}>SS26 Campaign</a>
             </div>
@@ -2109,6 +2395,10 @@ export default function App() {
 
   if (pathname === "/order-confirmed") {
     return <OrderConfirmationPage cartCount={cartCount} order={lastOrder} />;
+  }
+
+  if (pathname === "/lookbook") {
+    return <LookbookPage cartCount={cartCount} />;
   }
 
   if (page === "shop") {
