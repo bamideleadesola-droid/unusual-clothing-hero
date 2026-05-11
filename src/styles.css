@@ -1818,9 +1818,10 @@ svg {
 }
 
 .brand-manifesto h2 {
-  max-width: 8ch;
+  max-width: 9ch;
   margin-top: 0.8rem;
   font-size: clamp(4.6rem, 7vw, 10.5rem);
+  line-height: 0.9;
 }
 
 .brand-manifesto-copy p,
@@ -1876,9 +1877,13 @@ svg {
 
 .brand-principle-list button {
   display: grid;
-  grid-template-columns: 3.5rem minmax(0, 0.4fr) minmax(0, 0.8fr);
+  grid-template-areas:
+    "number title"
+    ". copy";
+  grid-template-columns: 3.5rem minmax(0, 1fr);
   gap: 1rem;
-  align-items: center;
+  align-content: center;
+  align-items: start;
   min-height: 0;
   padding: clamp(1rem, 1.8vw, 1.6rem);
   border: 0;
@@ -1903,15 +1908,24 @@ svg {
   color: var(--white);
 }
 
+.brand-principle-list button > span {
+  grid-area: number;
+}
+
 .brand-principle-list strong {
+  grid-area: title;
+  min-width: 0;
   color: inherit;
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: clamp(2rem, 2.9vw, 4.2rem);
+  font-size: clamp(2rem, 2.6vw, 3.8rem);
   font-weight: 950;
-  line-height: 0.84;
+  line-height: 0.9;
 }
 
 .brand-principle-list em {
+  grid-area: copy;
+  min-width: 0;
+  max-width: 42ch;
   color: rgba(255, 250, 240, 0.68);
   font-style: normal;
   font-size: 0.78rem;
@@ -6888,6 +6902,9 @@ svg {
   }
 
   .brand-principle-list button {
+    grid-template-areas:
+      "number title"
+      ". copy";
     grid-template-columns: 2.6rem minmax(0, 1fr);
     gap: 0.7rem 1rem;
     padding: 1rem;
@@ -6898,7 +6915,7 @@ svg {
   }
 
   .brand-principle-list em {
-    grid-column: 2;
+    grid-area: copy;
     font-size: 0.72rem;
   }
 
