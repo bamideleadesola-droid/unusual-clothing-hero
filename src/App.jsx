@@ -251,12 +251,12 @@ function Header() {
       </div>
       <nav className="nav-links" aria-label="Main menu">
         <a href="#shop">Shop</a>
-        <a href="#archive">Archive</a>
-        <a href="#journal">Journal</a>
+        <a href="#archive">Lookbook</a>
+        <a href="#journal">Waitlist</a>
       </nav>
       <div className="header-actions">
-        <a className="lookbook-link" href="#archive">
-          Lookbook
+        <a className="lookbook-link" href="#journal">
+          Join Waitlist
         </a>
         <a className="bag-link" href="#bag" aria-label="Open shopping bag">
           <span>Bag (0)</span>
