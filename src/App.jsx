@@ -509,8 +509,26 @@ const helpTopics = [
 
 const returnReasons = ["Size exchange", "Fit not right", "Damaged on arrival", "Changed mind", "Wrong item"];
 
+const defaultAccount = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  address: "",
+  apartment: "",
+  city: "London",
+  postcode: "",
+  preferences: {
+    earlyAccess: true,
+    sizingNotes: true,
+    restockAlerts: false,
+  },
+};
+
 const CART_STORAGE_KEY = "unusual-cart-v1";
 const ORDER_STORAGE_KEY = "unusual-order-v1";
+const SAVED_STORAGE_KEY = "unusual-saved-v1";
+const ACCOUNT_STORAGE_KEY = "unusual-account-v1";
 const promoCodes = {
   SIGNAL10: { label: "Signal code", rate: 0.1 },
   UNUSUAL15: { label: "Private list", rate: 0.15 },
@@ -547,6 +565,23 @@ function readStoredJson(key, fallback) {
   }
 }
 
+function readStoredAccount() {
+  const stored = readStoredJson(ACCOUNT_STORAGE_KEY, defaultAccount);
+  return {
+    ...defaultAccount,
+    ...stored,
+    preferences: {
+      ...defaultAccount.preferences,
+      ...(stored.preferences ?? {}),
+    },
+  };
+}
+
+function readStoredSavedSkus() {
+  const stored = readStoredJson(SAVED_STORAGE_KEY, []);
+  return Array.isArray(stored) ? stored.filter((sku) => getProduct(sku)) : [];
+}
+
 function getCartTotals(items, shippingPrice = 0, promoCode = "") {
   const subtotal = items.reduce((total, item) => {
     const product = getProduct(item.sku);
@@ -577,6 +612,7 @@ function Header({ page = "home", cartCount = 0 }) {
   const isShopCurrent = page === "shop" || page === "product";
   const isLookbookCurrent = page === "lookbook";
   const isBrandCurrent = page === "brand";
+  const isAccountCurrent = page === "account";
 
   return (
     <header className="site-header" aria-label="Primary navigation">
@@ -599,6 +635,9 @@ function Header({ page = "home", cartCount = 0 }) {
         </a>
       </nav>
       <div className="header-actions">
+        <a className="lookbook-link account-link" href="/account" aria-current={isAccountCurrent ? "page" : undefined}>
+          Account
+        </a>
         <a className="lookbook-link" href={waitlistHref}>
           Join Waitlist
         </a>
@@ -611,7 +650,7 @@ function Header({ page = "home", cartCount = 0 }) {
   );
 }
 
-function ShopPage({ cartCount = 0, addToCart }) {
+function ShopPage({ cartCount = 0, addToCart, savedSkus = [], toggleSaved = () => {} }) {
   const initialCategory = (() => {
     const category = new URLSearchParams(window.location.search).get("category");
     if (!category) return "All";
@@ -660,6 +699,7 @@ function ShopPage({ cartCount = 0, addToCart }) {
       setQuickAddedSku((current) => (current === selectedProduct.sku ? "" : current));
     }, 1800);
   };
+  const selectedSaved = savedSkus.includes(selectedProduct.sku);
 
   return (
     <div className="shop-shell" id="top">
@@ -739,6 +779,14 @@ function ShopPage({ cartCount = 0, addToCart }) {
                   <span>View product</span>
                   <ArrowIcon />
                 </a>
+                <button
+                  className={`button button-secondary save-action ${selectedSaved ? "is-saved" : ""}`}
+                  type="button"
+                  onClick={() => toggleSaved(selectedProduct.sku)}
+                >
+                  <span>{selectedSaved ? "Saved" : "Save"}</span>
+                  <ArrowIcon />
+                </button>
                 <button className="button shop-quick-add" type="button" onClick={quickAddSelected}>
                   <span>{quickAddedSku === selectedProduct.sku ? "Added" : "Quick add"}</span>
                   <ArrowIcon />
@@ -757,6 +805,7 @@ function ShopPage({ cartCount = 0, addToCart }) {
               {visibleProducts.map((product, index) => {
                 const details = productDetails[product.sku];
                 const isSelected = selectedProduct.sku === product.sku;
+                const isSaved = savedSkus.includes(product.sku);
 
                 return (
                   <article className={`shop-product ${isSelected ? "is-selected" : ""}`} key={product.sku}>
@@ -782,6 +831,14 @@ function ShopPage({ cartCount = 0, addToCart }) {
                         </span>
                       </span>
                     </button>
+                    <button
+                      type="button"
+                      className={`shop-save-toggle ${isSaved ? "is-saved" : ""}`}
+                      onClick={() => toggleSaved(product.sku)}
+                      aria-label={`${isSaved ? "Remove" : "Save"} ${product.name}`}
+                    >
+                      {isSaved ? "Saved" : "Save"}
+                    </button>
                   </article>
                 );
               })}
@@ -795,7 +852,7 @@ function ShopPage({ cartCount = 0, addToCart }) {
   );
 }
 
-function ProductPage({ sku, cartCount = 0, addToCart }) {
+function ProductPage({ sku, cartCount = 0, addToCart, savedSkus = [], toggleSaved = () => {} }) {
   const product = getProduct(sku);
   const stateProduct = product ?? releaseProducts[0];
   const [quantity, setQuantity] = useState(1);
@@ -827,6 +884,7 @@ function ProductPage({ sku, cartCount = 0, addToCart }) {
     .filter((item) => item.sku !== product.sku && (item.tag === product.tag || item.colors[0].name === product.colors[0].name))
     .slice(0, 2);
   const gallery = [product, ...relatedImages];
+  const productSaved = savedSkus.includes(product.sku);
 
   const addCurrentItem = (destination = "bag") => {
     addToCart({ sku: product.sku, size: selectedSize, color: selectedColor, quantity });
@@ -942,6 +1000,14 @@ function ProductPage({ sku, cartCount = 0, addToCart }) {
               </button>
               <button className="button button-secondary" type="button" onClick={() => addCurrentItem("checkout")}>
                 <span>Buy now</span>
+                <ArrowIcon />
+              </button>
+              <button
+                className={`button button-secondary save-action ${productSaved ? "is-saved" : ""}`}
+                type="button"
+                onClick={() => toggleSaved(product.sku)}
+              >
+                <span>{productSaved ? "Saved" : "Save"}</span>
                 <ArrowIcon />
               </button>
             </div>
@@ -3202,6 +3268,316 @@ function HelpPage({ cartCount = 0, order }) {
   );
 }
 
+function AccountPage({
+  account,
+  setAccount,
+  cartCount = 0,
+  order,
+  savedSkus = [],
+  toggleSaved = () => {},
+  moveSavedToBag = () => {},
+}) {
+  const [draft, setDraft] = useState(account);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [movedSku, setMovedSku] = useState("");
+  const savedProducts = savedSkus.map(getProduct).filter(Boolean);
+  const accountName = draft.firstName ? `${draft.firstName} ${draft.lastName}`.trim() : "Preview member";
+
+  useEffect(() => {
+    setDraft(account);
+  }, [account]);
+
+  const updateDraft = (field, value) => {
+    setDraft((current) => ({ ...current, [field]: value }));
+    setProfileSaved(false);
+  };
+
+  const updatePreference = (field) => {
+    setDraft((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        [field]: !current.preferences[field],
+      },
+    }));
+    setProfileSaved(false);
+  };
+
+  const saveProfile = (event) => {
+    event.preventDefault();
+    setAccount(draft);
+    setProfileSaved(true);
+  };
+
+  const useDemoProfile = () => {
+    setDraft({
+      ...defaultAccount,
+      firstName: "Ari",
+      lastName: "Stone",
+      email: order?.customer?.email ?? "buyer@example.co.uk",
+      phone: "+44 7700 900123",
+      address: "24 Redchurch Street",
+      apartment: "Studio 4",
+      city: "London",
+      postcode: "E2 7DP",
+      preferences: {
+        earlyAccess: true,
+        sizingNotes: true,
+        restockAlerts: true,
+      },
+    });
+    setProfileSaved(false);
+  };
+
+  const movePiece = (sku) => {
+    moveSavedToBag(sku);
+    setMovedSku(sku);
+    window.setTimeout(() => {
+      setMovedSku((current) => (current === sku ? "" : current));
+    }, 1400);
+  };
+
+  return (
+    <div className="shop-shell support-shell account-shell" id="top">
+      <Header page="account" cartCount={cartCount} />
+
+      <main className="support-page account-page" aria-labelledby="account-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <span>Account</span>
+        </nav>
+
+        <section className="support-hero account-hero">
+          <div className="support-hero-copy">
+            <span>UNUSUAL / ACCOUNT</span>
+            <h1 id="account-heading">Private Desk</h1>
+            <p>
+              A preview account space for saved pieces, drop preferences, delivery details, and recent order movement.
+              Nothing is sent to a backend yet.
+            </p>
+            <div className="support-actions">
+              <a className="button button-primary" href="#saved-pieces">
+                <span>Saved pieces</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/track-order">
+                <span>Track order</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className="support-hero-media" aria-label="UNUSUAL account reference">
+            <img
+              src="/assets/unusual-campaign-02.png"
+              alt="Model wearing black UNUSUAL technical layers in motion."
+              style={{ objectPosition: "74% 48%" }}
+            />
+            <span>PRIVATE_ACCOUNT_PREVIEW</span>
+          </div>
+        </section>
+
+        <section className="account-stats" aria-label="Account summary">
+          <article>
+            <span>Saved</span>
+            <strong>{String(savedProducts.length).padStart(2, "0")}</strong>
+            <p>Pieces held for later.</p>
+          </article>
+          <article>
+            <span>Orders</span>
+            <strong>{order ? "01" : "00"}</strong>
+            <p>Latest preview checkout.</p>
+          </article>
+          <article>
+            <span>Profile</span>
+            <strong>{draft.email ? "Live" : "Open"}</strong>
+            <p>{draft.email ? accountName : "Save details to begin."}</p>
+          </article>
+        </section>
+
+        <section className="account-layout" aria-label="Account workspace">
+          <form className={`support-panel account-form ${profileSaved ? "is-complete" : ""}`} onSubmit={saveProfile}>
+            <div className="support-panel-head">
+              <span>01 / PROFILE</span>
+              <h2>Preview sign-in</h2>
+            </div>
+
+            <div className="account-form-grid">
+              <label>
+                <span>First name</span>
+                <input value={draft.firstName} onChange={(event) => updateDraft("firstName", event.target.value)} />
+              </label>
+              <label>
+                <span>Last name</span>
+                <input value={draft.lastName} onChange={(event) => updateDraft("lastName", event.target.value)} />
+              </label>
+              <label>
+                <span>Email</span>
+                <input
+                  type="email"
+                  value={draft.email}
+                  onChange={(event) => updateDraft("email", event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                <span>Phone optional</span>
+                <input value={draft.phone} onChange={(event) => updateDraft("phone", event.target.value)} />
+              </label>
+            </div>
+
+            <div className="account-form-grid">
+              <label>
+                <span>Address</span>
+                <input value={draft.address} onChange={(event) => updateDraft("address", event.target.value)} />
+              </label>
+              <label>
+                <span>Apartment</span>
+                <input value={draft.apartment} onChange={(event) => updateDraft("apartment", event.target.value)} />
+              </label>
+              <label>
+                <span>City</span>
+                <input value={draft.city} onChange={(event) => updateDraft("city", event.target.value)} />
+              </label>
+              <label>
+                <span>Postcode</span>
+                <input
+                  value={draft.postcode}
+                  onChange={(event) => updateDraft("postcode", event.target.value.toUpperCase())}
+                />
+              </label>
+            </div>
+
+            <div className="preference-list" aria-label="Drop preferences">
+              {[
+                ["earlyAccess", "Early drop access", "First signal before public release."],
+                ["sizingNotes", "Sizing notes", "Fit guidance before checkout."],
+                ["restockAlerts", "Restock alerts", "Low-run pieces when stock returns."],
+              ].map(([key, label, copy]) => (
+                <label className="preference-toggle" key={key}>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(draft.preferences[key])}
+                    onChange={() => updatePreference(key)}
+                  />
+                  <span>{label}</span>
+                  <small>{copy}</small>
+                </label>
+              ))}
+            </div>
+
+            <div className="tracking-form-actions">
+              <button className="button button-primary" type="submit">
+                <span>{profileSaved ? "Profile saved" : "Save account"}</span>
+                <ArrowIcon />
+              </button>
+              <button className="button button-secondary" type="button" onClick={useDemoProfile}>
+                <span>Use demo details</span>
+                <ArrowIcon />
+              </button>
+            </div>
+            <p aria-live="polite">
+              {profileSaved ? "Account details saved in this browser." : "Preview account only. No login email is sent."}
+            </p>
+          </form>
+
+          <div className="account-side">
+            <section className="support-panel account-orders-panel" aria-labelledby="account-orders-heading">
+              <div className="support-panel-head">
+                <span>02 / ORDERS</span>
+                <h2 id="account-orders-heading">Recent order</h2>
+              </div>
+              {order ? (
+                <>
+                  <div className="tracking-order-meta">
+                    <div>
+                      <span>Order</span>
+                      <strong>{order.id}</strong>
+                    </div>
+                    <div>
+                      <span>Status</span>
+                      <strong>{orderStatusSteps[getOrderStatusIndex(order)].title}</strong>
+                    </div>
+                    <div>
+                      <span>Total</span>
+                      <strong>{formatPrice(order.totals.total)}</strong>
+                    </div>
+                  </div>
+                  <TrackingSummary order={order} />
+                  <div className="account-action-row">
+                    <a className="button button-primary" href={`/track-order?order=${order.id}`}>
+                      <span>Track order</span>
+                      <ArrowIcon />
+                    </a>
+                    <a className="button button-secondary" href="/help#return-request">
+                      <span>Start return</span>
+                      <ArrowIcon />
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <div className="account-empty-panel">
+                  <p>Complete a preview checkout and the order will appear here with tracking and return actions.</p>
+                  <a className="button button-secondary" href="/shop">
+                    <span>Shop SS26</span>
+                    <ArrowIcon />
+                  </a>
+                </div>
+              )}
+            </section>
+
+            <section className="support-panel account-saved-panel" id="saved-pieces" aria-labelledby="saved-heading">
+              <div className="support-panel-head">
+                <span>03 / SAVED</span>
+                <h2 id="saved-heading">Saved pieces</h2>
+              </div>
+              {savedProducts.length > 0 ? (
+                <div className="account-saved-grid">
+                  {savedProducts.map((product) => (
+                    <article key={product.sku}>
+                      <a href={`/product/${product.sku}`}>
+                        <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                      </a>
+                      <div>
+                        <span>{product.tag}</span>
+                        <h3>{product.name}</h3>
+                        <p>{product.price}</p>
+                      </div>
+                      <div className="account-saved-actions">
+                        <button className="button button-primary" type="button" onClick={() => movePiece(product.sku)}>
+                          <span>{movedSku === product.sku ? "Moved" : "Move to bag"}</span>
+                          <ArrowIcon />
+                        </button>
+                        <button className="button button-secondary" type="button" onClick={() => toggleSaved(product.sku)}>
+                          <span>Remove</span>
+                          <ArrowIcon />
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="account-empty-panel">
+                  <p>Save pieces from the shop or product page, then move them into the bag when the fit is right.</p>
+                  <a className="button button-secondary" href="/shop">
+                    <span>Browse pieces</span>
+                    <ArrowIcon />
+                  </a>
+                </div>
+              )}
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <Footer page="account" />
+    </div>
+  );
+}
+
 function Footer({ page = "home" }) {
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
@@ -3270,6 +3646,7 @@ function Footer({ page = "home" }) {
             </div>
             <div>
               <h3>Support</h3>
+              <a href="/account">Account</a>
               <a href="/track-order">Track Order</a>
               <a href="/size-guide">Size Guide</a>
               <a href="/shipping-returns">Shipping & Returns</a>
@@ -3318,6 +3695,8 @@ function Footer({ page = "home" }) {
 export default function App() {
   const [cartItems, setCartItems] = useState(() => readStoredJson(CART_STORAGE_KEY, []));
   const [lastOrder, setLastOrder] = useState(() => readStoredJson(ORDER_STORAGE_KEY, null));
+  const [savedSkus, setSavedSkus] = useState(readStoredSavedSkus);
+  const [account, setAccount] = useState(readStoredAccount);
   const pathname = window.location.pathname.replace(/\/$/, "") || "/";
   const page = pathname === "/shop" ? "shop" : "home";
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -3331,6 +3710,14 @@ export default function App() {
       window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(lastOrder));
     }
   }, [lastOrder]);
+
+  useEffect(() => {
+    window.localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedSkus));
+  }, [savedSkus]);
+
+  useEffect(() => {
+    window.localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
+  }, [account]);
 
   const addToCart = ({ sku, size, color, quantity = 1 }) => {
     setCartItems((current) => {
@@ -3349,6 +3736,19 @@ export default function App() {
       window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart));
       return nextCart;
     });
+  };
+
+  const toggleSaved = (sku) => {
+    setSavedSkus((current) =>
+      current.includes(sku) ? current.filter((savedSku) => savedSku !== sku) : [...current, sku],
+    );
+  };
+
+  const moveSavedToBag = (sku) => {
+    const product = getProduct(sku);
+    if (!product) return;
+    addToCart({ sku, size: product.sizes[0], color: product.colors[0].name, quantity: 1 });
+    setSavedSkus((current) => current.filter((savedSku) => savedSku !== sku));
   };
 
   const updateCartQuantity = (key, quantity) => {
@@ -3394,7 +3794,15 @@ export default function App() {
 
   if (pathname.startsWith("/product/")) {
     const sku = decodeURIComponent(pathname.replace("/product/", ""));
-    return <ProductPage sku={sku} cartCount={cartCount} addToCart={addToCart} />;
+    return (
+      <ProductPage
+        sku={sku}
+        cartCount={cartCount}
+        addToCart={addToCart}
+        savedSkus={savedSkus}
+        toggleSaved={toggleSaved}
+      />
+    );
   }
 
   if (pathname === "/bag") {
@@ -3424,6 +3832,20 @@ export default function App() {
     return <OrderConfirmationPage cartCount={cartCount} order={lastOrder} />;
   }
 
+  if (pathname === "/account") {
+    return (
+      <AccountPage
+        account={account}
+        setAccount={setAccount}
+        cartCount={cartCount}
+        order={lastOrder}
+        savedSkus={savedSkus}
+        toggleSaved={toggleSaved}
+        moveSavedToBag={moveSavedToBag}
+      />
+    );
+  }
+
   if (pathname === "/track-order") {
     return <OrderTrackingPage cartCount={cartCount} order={lastOrder} />;
   }
@@ -3449,7 +3871,7 @@ export default function App() {
   }
 
   if (page === "shop") {
-    return <ShopPage cartCount={cartCount} addToCart={addToCart} />;
+    return <ShopPage cartCount={cartCount} addToCart={addToCart} savedSkus={savedSkus} toggleSaved={toggleSaved} />;
   }
 
   return (

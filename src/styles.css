@@ -253,6 +253,14 @@ svg {
   transform: scaleX(0.32);
 }
 
+.account-link[aria-current="page"] {
+  color: var(--red);
+}
+
+.account-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
 .bag-icon {
   position: relative;
   width: 16px;
@@ -2372,8 +2380,40 @@ svg {
 }
 
 .shop-product {
+  position: relative;
   min-width: 0;
   animation: productReveal 720ms var(--ease-out) both;
+}
+
+.shop-save-toggle {
+  position: absolute;
+  z-index: 4;
+  top: 10px;
+  right: 10px;
+  min-height: 34px;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(255, 250, 240, 0.78);
+  border-radius: 0;
+  background: rgba(18, 17, 15, 0.78);
+  color: var(--white);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.shop-save-toggle:hover,
+.shop-save-toggle:focus-visible,
+.shop-save-toggle.is-saved {
+  border-color: var(--red);
+  background: var(--red);
+  transform: translateY(-2px);
 }
 
 .shop-product-button {
@@ -2802,7 +2842,7 @@ svg {
 
 .product-actions {
   display: grid;
-  grid-template-columns: 1fr 0.62fr;
+  grid-template-columns: 1fr 0.62fr 0.56fr;
   gap: 10px;
 }
 
@@ -2816,6 +2856,12 @@ svg {
   background: var(--ink);
   color: var(--white);
   cursor: pointer;
+}
+
+.save-action.is-saved {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--white);
 }
 
 .product-service {
@@ -2906,7 +2952,7 @@ svg {
 
 .shop-inspector-actions {
   display: grid;
-  grid-template-columns: 1fr 0.7fr;
+  grid-template-columns: 1fr 0.62fr 0.7fr;
   gap: 10px;
 }
 
@@ -4118,6 +4164,200 @@ svg {
 .return-empty {
   display: grid;
   gap: 1rem;
+}
+
+.account-stats,
+.account-layout,
+.account-form-grid,
+.account-saved-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.account-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.account-stats article,
+.account-saved-grid article {
+  border: 1px solid rgba(18, 17, 15, 0.82);
+  background: rgba(255, 250, 240, 0.2);
+}
+
+.account-stats article {
+  display: grid;
+  align-content: space-between;
+  min-height: 190px;
+  padding: 1rem;
+}
+
+.account-stats span,
+.account-saved-grid span,
+.account-form label > span,
+.preference-toggle span {
+  color: var(--red);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.account-stats strong {
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(3rem, 5vw, 7.2rem);
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.account-stats p,
+.account-form > p,
+.account-empty-panel p {
+  margin: 0;
+  color: rgba(18, 17, 15, 0.68);
+  font-size: 0.92rem;
+  font-weight: 760;
+  line-height: 1.3;
+}
+
+.account-layout {
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.82fr);
+  align-items: start;
+}
+
+.account-side {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-form label {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.account-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-form input:not([type="checkbox"]) {
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  border: 1px solid rgba(18, 17, 15, 0.72);
+  border-radius: 0;
+  background: rgba(255, 250, 240, 0.24);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 760;
+  padding: 0 1rem;
+}
+
+.preference-list {
+  display: grid;
+  gap: 8px;
+}
+
+.preference-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.42rem 0.85rem;
+  align-items: center;
+  min-height: 72px;
+  padding: 0.9rem;
+  border: 1px solid rgba(18, 17, 15, 0.22);
+  cursor: pointer;
+}
+
+.preference-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--red);
+}
+
+.preference-toggle small {
+  grid-column: 2;
+  color: rgba(18, 17, 15, 0.62);
+  font-size: 0.82rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+.account-action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.account-empty-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.account-empty-panel .button {
+  width: fit-content;
+}
+
+.account-saved-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-saved-grid article {
+  display: grid;
+  overflow: clip;
+}
+
+.account-saved-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 4.6;
+  object-fit: cover;
+  background: var(--paper-deep);
+  transition:
+    filter 320ms var(--ease-out),
+    transform 520ms var(--ease-out);
+}
+
+.account-saved-grid a:hover img,
+.account-saved-grid a:focus-visible img {
+  filter: saturate(1.06) contrast(1.05);
+  transform: scale(1.06);
+}
+
+.account-saved-grid article > div {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.account-saved-grid h3 {
+  margin: 0;
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(1.8rem, 2.4vw, 3.8rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.account-saved-grid p {
+  margin: 0;
+  font-weight: 950;
+}
+
+.account-saved-actions {
+  grid-template-columns: 1fr 0.62fr;
+}
+
+.account-saved-actions .button span {
+  color: currentColor;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .drop-index {
@@ -6689,8 +6929,14 @@ svg {
   }
 
   .tracking-layout,
-  .help-workspace {
+  .help-workspace,
+  .account-layout {
     grid-template-columns: 1fr;
+  }
+
+  .account-stats,
+  .account-saved-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .product-buy-panel,
@@ -7301,6 +7547,11 @@ svg {
 
   .tracking-form-actions,
   .help-field-grid,
+  .account-form-grid,
+  .account-stats,
+  .account-saved-grid,
+  .account-action-row,
+  .account-saved-actions,
   .tracking-order-meta {
     grid-template-columns: 1fr;
   }
