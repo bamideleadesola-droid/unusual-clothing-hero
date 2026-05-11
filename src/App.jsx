@@ -237,35 +237,99 @@ const productDetails = {
     fit: "Oversized shell fit",
     fabric: "Water-repellent nylon / cotton lining",
     status: "Private release",
+    story: "High collar volume, red signal flashes, and a shell shape built for long city movement.",
+    care: "Cold wash inside out. Hang dry. Do not bleach.",
+    model: "Model is 6'1 and wears M.",
+    inventory: 9,
   },
   "redline-jersey": {
     fit: "Relaxed match fit",
     fabric: "Breathable mesh / paneled poly",
     status: "New signal",
+    story: "A match top pulled into street uniform mode with sharp panel tension and front-name energy.",
+    care: "Machine wash cold. Dry flat. Keep away from high heat.",
+    model: "Model is 6'0 and wears M.",
+    inventory: 12,
   },
   "name-hoodie": {
     fit: "Dropped shoulder fit",
     fabric: "Washed heavyweight cotton",
     status: "Low run",
+    story: "Washed charcoal cotton with a softened UNUSUAL mark and a heavier late-night hand feel.",
+    care: "Wash cold with similar colors. Expect natural fading.",
+    model: "Model is 5'11 and wears L.",
+    inventory: 6,
   },
   "utility-bag": {
     fit: "Adjustable crossbody",
     fabric: "Matte nylon / metal hardware",
     status: "Carry system",
+    story: "A compact carry piece with utility pocketing, hard hardware, and stitched name signal.",
+    care: "Spot clean only. Store dry.",
+    model: "One size. Adjustable strap.",
+    inventory: 14,
   },
   "red-gloves": {
     fit: "Close hand fit",
     fabric: "Gloss leather finish",
     status: "Accessory drop",
+    story: "A red signal accessory for breaking up black technical layers with one hard detail.",
+    care: "Wipe clean with a soft cloth. Avoid direct heat.",
+    model: "Close fit. Size up for relaxed wear.",
+    inventory: 5,
   },
   "cargo-trouser": {
     fit: "Wide stacked fit",
     fabric: "Cotton twill / reflective tape",
     status: "Core piece",
+    story: "Wide cargo volume with reflective low-light tape and a stacked shape over heavy footwear.",
+    care: "Machine wash cold. Hang dry. Do not iron reflective tape.",
+    model: "Model is 6'1 and wears M.",
+    inventory: 10,
   },
 };
 
+const shippingMethods = [
+  { id: "standard", name: "Standard signal", eta: "4-6 business days", price: 0 },
+  { id: "express", name: "Express movement", eta: "2 business days", price: 18 },
+  { id: "overnight", name: "Overnight dispatch", eta: "Next business day", price: 34 },
+];
+
+const CART_STORAGE_KEY = "unusual-cart-v1";
+const ORDER_STORAGE_KEY = "unusual-order-v1";
+const promoCodes = {
+  SIGNAL10: { label: "Signal code", rate: 0.1 },
+  UNUSUAL15: { label: "Private list", rate: 0.15 },
+};
+
 const slugify = (value) => value.toLowerCase().replace(/\s+/g, "-");
+const getProduct = (sku) => releaseProducts.find((product) => product.sku === sku);
+const parsePrice = (price) => Number(price.replace("$", ""));
+const formatPrice = (amount) => `$${amount.toFixed(2)}`;
+const cartLineKey = ({ sku, size, color }) => [sku, size, color].join("__");
+
+function readStoredJson(key, fallback) {
+  try {
+    const stored = window.localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function getCartTotals(items, shippingPrice = 0, promoCode = "") {
+  const subtotal = items.reduce((total, item) => {
+    const product = getProduct(item.sku);
+    return product ? total + parsePrice(product.price) * item.quantity : total;
+  }, 0);
+  const promo = promoCodes[promoCode.toUpperCase()];
+  const discount = promo ? subtotal * promo.rate : 0;
+  const taxable = Math.max(0, subtotal - discount);
+  const tax = taxable * 0.0825;
+  const total = taxable + tax + shippingPrice;
+
+  return { subtotal, discount, tax, shipping: shippingPrice, total, promo };
+}
 
 function ArrowIcon() {
   return (
@@ -276,10 +340,11 @@ function ArrowIcon() {
   );
 }
 
-function Header({ page = "home" }) {
+function Header({ page = "home", cartCount = 0 }) {
   const homeHref = page === "home" ? "#top" : "/";
   const lookbookHref = page === "home" ? "#archive" : "/#archive";
   const waitlistHref = page === "home" ? "#journal" : "/#journal";
+  const isShopCurrent = page === "shop" || page === "product";
 
   return (
     <header className="site-header" aria-label="Primary navigation">
@@ -291,7 +356,7 @@ function Header({ page = "home" }) {
         <span className="drop-code">SS26</span>
       </div>
       <nav className="nav-links" aria-label="Main menu">
-        <a href="/shop" aria-current={page === "shop" ? "page" : undefined}>
+        <a href="/shop" aria-current={isShopCurrent ? "page" : undefined}>
           Shop
         </a>
         <a href={lookbookHref}>Lookbook</a>
@@ -301,8 +366,8 @@ function Header({ page = "home" }) {
         <a className="lookbook-link" href={waitlistHref}>
           Join Waitlist
         </a>
-        <a className="bag-link" href="#bag" aria-label="Open shopping bag">
-          <span>Bag (0)</span>
+        <a className="bag-link" href="/bag" aria-label={`Open shopping bag with ${cartCount} items`}>
+          <span>Bag ({cartCount})</span>
           <span className="bag-icon" aria-hidden="true" />
         </a>
       </div>
@@ -310,7 +375,7 @@ function Header({ page = "home" }) {
   );
 }
 
-function ShopPage() {
+function ShopPage({ cartCount = 0, addToCart }) {
   const initialCategory = (() => {
     const category = new URLSearchParams(window.location.search).get("category");
     if (!category) return "All";
@@ -323,6 +388,7 @@ function ShopPage() {
     releaseProducts.find((product) => initialCategory === "All" || product.tag === initialCategory)?.sku ??
       releaseProducts[0].sku,
   );
+  const [quickAddedSku, setQuickAddedSku] = useState("");
   const selectedProduct = releaseProducts.find((product) => product.sku === selectedSku) ?? releaseProducts[0];
   const selectedDetails = productDetails[selectedProduct.sku];
 
@@ -346,9 +412,22 @@ function ShopPage() {
     window.history.replaceState(null, "", url);
   };
 
+  const quickAddSelected = () => {
+    addToCart({
+      sku: selectedProduct.sku,
+      size: selectedProduct.sizes[0],
+      color: selectedProduct.colors[0].name,
+      quantity: 1,
+    });
+    setQuickAddedSku(selectedProduct.sku);
+    window.setTimeout(() => {
+      setQuickAddedSku((current) => (current === selectedProduct.sku ? "" : current));
+    }, 1800);
+  };
+
   return (
     <div className="shop-shell" id="top">
-      <Header page="shop" />
+      <Header page="shop" cartCount={cartCount} />
 
       <main className="shop-page" aria-labelledby="shop-page-heading">
         <section className="shop-hero">
@@ -419,10 +498,16 @@ function ShopPage() {
                   <dd>{selectedDetails.fabric}</dd>
                 </div>
               </dl>
-              <a className="button shop-detail-link" href="#shop-products">
-                <span>Browse pieces</span>
-                <ArrowIcon />
-              </a>
+              <div className="shop-inspector-actions">
+                <a className="button shop-detail-link" href={`/product/${selectedProduct.sku}`}>
+                  <span>View product</span>
+                  <ArrowIcon />
+                </a>
+                <button className="button shop-quick-add" type="button" onClick={quickAddSelected}>
+                  <span>{quickAddedSku === selectedProduct.sku ? "Added" : "Quick add"}</span>
+                  <ArrowIcon />
+                </button>
+              </div>
             </div>
           </aside>
 
@@ -474,14 +559,735 @@ function ShopPage() {
   );
 }
 
-function ReleaseRack() {
+function ProductPage({ sku, cartCount = 0, addToCart }) {
+  const product = getProduct(sku);
+  const stateProduct = product ?? releaseProducts[0];
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(stateProduct.sizes[0]);
+  const [selectedColor, setSelectedColor] = useState(stateProduct.colors[0].name);
+
+  if (!product) {
+    return (
+      <div className="shop-shell" id="top">
+        <Header page="product" cartCount={cartCount} />
+        <main className="commerce-empty">
+          <span>404 / PRODUCT</span>
+          <h1>Piece not found</h1>
+          <p>This release item may have moved, sold through, or never existed.</p>
+          <a className="button button-primary" href="/shop">
+            <span>Return to shop</span>
+            <ArrowIcon />
+          </a>
+        </main>
+        <Footer page="product" />
+      </div>
+    );
+  }
+
+  const details = productDetails[product.sku];
+  const relatedImages = releaseProducts
+    .filter((item) => item.sku !== product.sku && (item.tag === product.tag || item.colors[0].name === product.colors[0].name))
+    .slice(0, 2);
+  const gallery = [product, ...relatedImages];
+
+  const addCurrentItem = (destination = "bag") => {
+    addToCart({ sku: product.sku, size: selectedSize, color: selectedColor, quantity });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
+
+    if (destination === "checkout") {
+      window.setTimeout(() => {
+        window.location.href = "/checkout";
+      }, 260);
+    }
+  };
+
+  return (
+    <div className="shop-shell product-shell" id="top">
+      <Header page="product" cartCount={cartCount} />
+
+      <main className="product-page" aria-labelledby="product-heading">
+        <nav className="commerce-crumbs" aria-label="Breadcrumb">
+          <a href="/shop">Shop</a>
+          <span>/</span>
+          <a href={`/shop?category=${slugify(product.tag)}`}>{product.tag}</a>
+          <span>/</span>
+          <span>{product.name}</span>
+        </nav>
+
+        <section className="product-layout">
+          <div className="product-gallery" aria-label={`${product.name} images`}>
+            <div className="product-gallery-main">
+              <img
+                src={gallery[activeImage].image}
+                alt={gallery[activeImage].alt}
+                style={{ objectPosition: gallery[activeImage].position }}
+              />
+              <span>{details.status}</span>
+            </div>
+            <div className="product-thumbs">
+              {gallery.map((item, index) => (
+                <button
+                  type="button"
+                  className={activeImage === index ? "is-active" : ""}
+                  key={item.sku}
+                  onClick={() => setActiveImage(index)}
+                  aria-label={`Show ${item.name}`}
+                >
+                  <img src={item.image} alt="" aria-hidden="true" style={{ objectPosition: item.position }} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="product-buy-panel">
+            <span>{product.number} / {product.tag}</span>
+            <h1 id="product-heading">{product.name}</h1>
+            <p className="product-price">{product.price}</p>
+            <p>{details.story}</p>
+
+            <div className="product-choice">
+              <div className="product-choice-head">
+                <span>Size</span>
+                <small>{details.fit}</small>
+              </div>
+              <div className={`commerce-options ${product.sizes.length === 1 ? "is-single" : ""}`}>
+                {product.sizes.map((size) => (
+                  <button
+                    type="button"
+                    className={selectedSize === size ? "is-selected" : ""}
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="product-choice">
+              <div className="product-choice-head">
+                <span>Color</span>
+                <small>{selectedColor}</small>
+              </div>
+              <div className="commerce-swatches">
+                {product.colors.map((color) => (
+                  <button
+                    type="button"
+                    className={selectedColor === color.name ? "is-selected" : ""}
+                    key={color.name}
+                    onClick={() => setSelectedColor(color.name)}
+                    aria-label={color.name}
+                    style={{ "--swatch": color.value }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="product-quantity">
+              <span>Quantity</span>
+              <div>
+                <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>
+                  -
+                </button>
+                <strong>{quantity}</strong>
+                <button type="button" onClick={() => setQuantity((value) => Math.min(details.inventory, value + 1))}>
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="product-actions">
+              <button className="button button-primary" type="button" onClick={() => addCurrentItem("bag")}>
+                <span>{added ? "Added to bag" : "Add to bag"}</span>
+                <ArrowIcon />
+              </button>
+              <button className="button button-secondary" type="button" onClick={() => addCurrentItem("checkout")}>
+                <span>Buy now</span>
+                <ArrowIcon />
+              </button>
+            </div>
+
+            <dl className="product-service">
+              <div>
+                <dt>Stock</dt>
+                <dd>{details.inventory} left in this release</dd>
+              </div>
+              <div>
+                <dt>Fabric</dt>
+                <dd>{details.fabric}</dd>
+              </div>
+              <div>
+                <dt>Care</dt>
+                <dd>{details.care}</dd>
+              </div>
+              <div>
+                <dt>Fit note</dt>
+                <dd>{details.model}</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      </main>
+
+      <Footer page="product" />
+    </div>
+  );
+}
+
+function CartLineItem({ item, updateCartQuantity, removeCartItem }) {
+  const product = getProduct(item.sku);
+  if (!product) return null;
+
+  return (
+    <article className="cart-line">
+      <a className="cart-line-media" href={`/product/${product.sku}`}>
+        <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+      </a>
+      <div className="cart-line-copy">
+        <span>{product.tag}</span>
+        <h2>{product.name}</h2>
+        <p>{item.size} / {item.color}</p>
+        <strong>{formatPrice(parsePrice(product.price) * item.quantity)}</strong>
+      </div>
+      <div className="cart-line-controls">
+        <div className="cart-stepper" aria-label={`Quantity for ${product.name}`}>
+          <button type="button" onClick={() => updateCartQuantity(item.key, item.quantity - 1)}>
+            -
+          </button>
+          <span>{item.quantity}</span>
+          <button type="button" onClick={() => updateCartQuantity(item.key, item.quantity + 1)}>
+            +
+          </button>
+        </div>
+        <button className="cart-remove" type="button" onClick={() => removeCartItem(item.key)}>
+          Remove
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function CommerceTotals({ totals }) {
+  return (
+    <dl className="commerce-totals">
+      <div>
+        <dt>Subtotal</dt>
+        <dd>{formatPrice(totals.subtotal)}</dd>
+      </div>
+      <div>
+        <dt>Discount</dt>
+        <dd>{totals.discount > 0 ? `-${formatPrice(totals.discount)}` : "$0.00"}</dd>
+      </div>
+      <div>
+        <dt>Shipping</dt>
+        <dd>{totals.shipping === 0 ? "Free" : formatPrice(totals.shipping)}</dd>
+      </div>
+      <div>
+        <dt>Estimated tax</dt>
+        <dd>{formatPrice(totals.tax)}</dd>
+      </div>
+      <div className="is-total">
+        <dt>Total</dt>
+        <dd>{formatPrice(totals.total)}</dd>
+      </div>
+    </dl>
+  );
+}
+
+function CartPage({ cartItems, cartCount, updateCartQuantity, removeCartItem }) {
+  const totals = getCartTotals(cartItems);
+
+  return (
+    <div className="shop-shell cart-shell" id="top">
+      <Header page="bag" cartCount={cartCount} />
+      <main className="cart-page" aria-labelledby="cart-heading">
+        <section className="commerce-heading">
+          <span>UNUSUAL / BAG</span>
+          <h1 id="cart-heading">Your Bag</h1>
+          <p>{cartCount > 0 ? "Review the pieces before checkout." : "Your bag is waiting for its first signal."}</p>
+        </section>
+
+        {cartItems.length === 0 ? (
+          <section className="commerce-empty">
+            <span>EMPTY STATE</span>
+            <h2>No pieces in the bag</h2>
+            <p>Start with outerwear, jerseys, accessories, or the full SS26 drop.</p>
+            <a className="button button-primary" href="/shop">
+              <span>Shop the drop</span>
+              <ArrowIcon />
+            </a>
+          </section>
+        ) : (
+          <section className="cart-layout">
+            <div className="cart-lines">
+              {cartItems.map((item) => (
+                <CartLineItem
+                  item={item}
+                  key={item.key}
+                  updateCartQuantity={updateCartQuantity}
+                  removeCartItem={removeCartItem}
+                />
+              ))}
+            </div>
+            <aside className="cart-summary">
+              <span>Order summary</span>
+              <CommerceTotals totals={totals} />
+              <a className="button button-primary" href="/checkout">
+                <span>Checkout</span>
+                <ArrowIcon />
+              </a>
+              <a className="cart-continue" href="/shop">Continue shopping</a>
+            </aside>
+          </section>
+        )}
+      </main>
+      <Footer page="bag" />
+    </div>
+  );
+}
+
+function CheckoutPage({ cartItems, cartCount, updateCartQuantity, removeCartItem, placeOrder }) {
+  const [step, setStep] = useState("contact");
+  const [shippingId, setShippingId] = useState("standard");
+  const [promoInput, setPromoInput] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoMessage, setPromoMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const [form, setForm] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    address: "",
+    apartment: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "United States",
+    cardName: "",
+    cardNumber: "",
+    expiry: "",
+    cvc: "",
+  });
+  const shipping = shippingMethods.find((method) => method.id === shippingId) ?? shippingMethods[0];
+  const totals = getCartTotals(cartItems, shipping.price, promoCode);
+  const steps = ["contact", "delivery", "payment", "review"];
+  const stepIndex = steps.indexOf(step);
+
+  const updateField = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: "" }));
+  };
+
+  const validateStep = (targetStep = step) => {
+    const nextErrors = {};
+    if (targetStep === "contact") {
+      if (!/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = "Enter a valid email.";
+      if (!form.firstName.trim()) nextErrors.firstName = "First name is required.";
+      if (!form.lastName.trim()) nextErrors.lastName = "Last name is required.";
+    }
+    if (targetStep === "delivery") {
+      ["address", "city", "state", "zip"].forEach((field) => {
+        if (!form[field].trim()) nextErrors[field] = "Required.";
+      });
+      if (form.zip && !/^\d{5}(-\d{4})?$/.test(form.zip)) nextErrors.zip = "Use a valid ZIP code.";
+    }
+    if (targetStep === "payment") {
+      const cardNumber = form.cardNumber.replace(/\s+/g, "");
+      if (!form.cardName.trim()) nextErrors.cardName = "Name on card is required.";
+      if (!/^\d{16}$/.test(cardNumber)) nextErrors.cardNumber = "Use 16 digits.";
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.expiry)) nextErrors.expiry = "Use MM/YY.";
+      if (!/^\d{3,4}$/.test(form.cvc)) nextErrors.cvc = "Use 3 or 4 digits.";
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const goNext = () => {
+    if (!validateStep(step)) return;
+    setStep(steps[Math.min(steps.length - 1, stepIndex + 1)]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const applyPromo = () => {
+    const normalized = promoInput.trim().toUpperCase();
+    if (!normalized) {
+      setPromoCode("");
+      setPromoMessage("");
+      return;
+    }
+    if (!promoCodes[normalized]) {
+      setPromoCode("");
+      setPromoMessage("Code not recognized.");
+      return;
+    }
+    setPromoCode(normalized);
+    setPromoMessage(`${promoCodes[normalized].label} applied.`);
+  };
+
+  const fillDemoPayment = () => {
+    setForm((current) => ({
+      ...current,
+      cardName: `${current.firstName || "UNUSUAL"} ${current.lastName || "Customer"}`.trim(),
+      cardNumber: "4242 4242 4242 4242",
+      expiry: "12/30",
+      cvc: "424",
+    }));
+    setErrors((current) => ({ ...current, cardName: "", cardNumber: "", expiry: "", cvc: "" }));
+  };
+
+  const completePurchase = () => {
+    for (const checkoutStep of steps.slice(0, 3)) {
+      if (!validateStep(checkoutStep)) {
+        setStep(checkoutStep);
+        return;
+      }
+    }
+    const order = placeOrder({ form, shipping, promoCode, totals });
+    window.location.href = `/order-confirmed?order=${order.id}`;
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="shop-shell checkout-shell" id="top">
+        <Header page="checkout" cartCount={cartCount} />
+        <main className="commerce-empty">
+          <span>CHECKOUT</span>
+          <h1>Your bag is empty</h1>
+          <p>Add a piece before starting checkout.</p>
+          <a className="button button-primary" href="/shop">
+            <span>Return to shop</span>
+            <ArrowIcon />
+          </a>
+        </main>
+        <Footer page="checkout" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="shop-shell checkout-shell" id="top">
+      <Header page="checkout" cartCount={cartCount} />
+      <main className="checkout-page" aria-labelledby="checkout-heading">
+        <section className="commerce-heading">
+          <span>UNUSUAL / CHECKOUT</span>
+          <h1 id="checkout-heading">Secure Checkout</h1>
+          <p>Complete the private release order. Payment is simulated in this preview.</p>
+        </section>
+
+        <div className="checkout-steps" aria-label="Checkout progress">
+          {steps.map((checkoutStep, index) => (
+            <button
+              type="button"
+              className={step === checkoutStep ? "is-active" : index < stepIndex ? "is-complete" : ""}
+              key={checkoutStep}
+              onClick={() => {
+                if (index <= stepIndex || steps.slice(0, index).every((checkoutStepName) => validateStep(checkoutStepName))) {
+                  setStep(checkoutStep);
+                }
+              }}
+            >
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              {checkoutStep}
+            </button>
+          ))}
+        </div>
+
+        <section className="checkout-layout">
+          <div className="checkout-panel">
+            {step === "contact" && (
+              <div className="checkout-step">
+                <h2>Contact</h2>
+                <div className="checkout-fields two">
+                  <label>
+                    <span>Email</span>
+                    <input value={form.email} onChange={(event) => updateField("email", event.target.value)} />
+                    {errors.email && <em>{errors.email}</em>}
+                  </label>
+                  <label>
+                    <span>Phone optional</span>
+                    <input value={form.phone} onChange={(event) => updateField("phone", event.target.value)} />
+                  </label>
+                  <label>
+                    <span>First name</span>
+                    <input value={form.firstName} onChange={(event) => updateField("firstName", event.target.value)} />
+                    {errors.firstName && <em>{errors.firstName}</em>}
+                  </label>
+                  <label>
+                    <span>Last name</span>
+                    <input value={form.lastName} onChange={(event) => updateField("lastName", event.target.value)} />
+                    {errors.lastName && <em>{errors.lastName}</em>}
+                  </label>
+                </div>
+                <button className="button button-primary" type="button" onClick={goNext}>
+                  <span>Continue to delivery</span>
+                  <ArrowIcon />
+                </button>
+              </div>
+            )}
+
+            {step === "delivery" && (
+              <div className="checkout-step">
+                <h2>Delivery</h2>
+                <div className="checkout-fields">
+                  <label>
+                    <span>Address</span>
+                    <input value={form.address} onChange={(event) => updateField("address", event.target.value)} />
+                    {errors.address && <em>{errors.address}</em>}
+                  </label>
+                  <label>
+                    <span>Apartment optional</span>
+                    <input value={form.apartment} onChange={(event) => updateField("apartment", event.target.value)} />
+                  </label>
+                </div>
+                <div className="checkout-fields three">
+                  <label>
+                    <span>City</span>
+                    <input value={form.city} onChange={(event) => updateField("city", event.target.value)} />
+                    {errors.city && <em>{errors.city}</em>}
+                  </label>
+                  <label>
+                    <span>State</span>
+                    <input value={form.state} onChange={(event) => updateField("state", event.target.value)} />
+                    {errors.state && <em>{errors.state}</em>}
+                  </label>
+                  <label>
+                    <span>ZIP</span>
+                    <input value={form.zip} onChange={(event) => updateField("zip", event.target.value)} />
+                    {errors.zip && <em>{errors.zip}</em>}
+                  </label>
+                </div>
+                <div className="shipping-methods" aria-label="Shipping methods">
+                  {shippingMethods.map((method) => (
+                    <button
+                      type="button"
+                      className={shippingId === method.id ? "is-selected" : ""}
+                      key={method.id}
+                      onClick={() => setShippingId(method.id)}
+                    >
+                      <span>
+                        <strong>{method.name}</strong>
+                        <small>{method.eta}</small>
+                      </span>
+                      <b>{method.price === 0 ? "Free" : formatPrice(method.price)}</b>
+                    </button>
+                  ))}
+                </div>
+                <div className="checkout-nav">
+                  <button className="button button-secondary" type="button" onClick={() => setStep("contact")}>
+                    <span>Back</span>
+                  </button>
+                  <button className="button button-primary" type="button" onClick={goNext}>
+                    <span>Continue to payment</span>
+                    <ArrowIcon />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "payment" && (
+              <div className="checkout-step">
+                <h2>Payment</h2>
+                <p className="checkout-note">Use the demo card button for preview checkout. No real payment is taken.</p>
+                <div className="checkout-fields">
+                  <label>
+                    <span>Name on card</span>
+                    <input value={form.cardName} onChange={(event) => updateField("cardName", event.target.value)} />
+                    {errors.cardName && <em>{errors.cardName}</em>}
+                  </label>
+                  <label>
+                    <span>Card number</span>
+                    <input
+                      inputMode="numeric"
+                      value={form.cardNumber}
+                      onChange={(event) => updateField("cardNumber", event.target.value)}
+                    />
+                    {errors.cardNumber && <em>{errors.cardNumber}</em>}
+                  </label>
+                </div>
+                <div className="checkout-fields two">
+                  <label>
+                    <span>Expiry</span>
+                    <input value={form.expiry} onChange={(event) => updateField("expiry", event.target.value)} />
+                    {errors.expiry && <em>{errors.expiry}</em>}
+                  </label>
+                  <label>
+                    <span>CVC</span>
+                    <input inputMode="numeric" value={form.cvc} onChange={(event) => updateField("cvc", event.target.value)} />
+                    {errors.cvc && <em>{errors.cvc}</em>}
+                  </label>
+                </div>
+                <button className="checkout-demo" type="button" onClick={fillDemoPayment}>
+                  Use demo card
+                </button>
+                <div className="checkout-nav">
+                  <button className="button button-secondary" type="button" onClick={() => setStep("delivery")}>
+                    <span>Back</span>
+                  </button>
+                  <button className="button button-primary" type="button" onClick={goNext}>
+                    <span>Review order</span>
+                    <ArrowIcon />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "review" && (
+              <div className="checkout-step checkout-review">
+                <h2>Review</h2>
+                <div className="review-block">
+                  <span>Contact</span>
+                  <p>{form.firstName} {form.lastName}<br />{form.email}</p>
+                </div>
+                <div className="review-block">
+                  <span>Ship to</span>
+                  <p>{form.address}{form.apartment ? `, ${form.apartment}` : ""}<br />{form.city}, {form.state} {form.zip}</p>
+                </div>
+                <div className="review-block">
+                  <span>Delivery</span>
+                  <p>{shipping.name}<br />{shipping.eta}</p>
+                </div>
+                <div className="checkout-nav">
+                  <button className="button button-secondary" type="button" onClick={() => setStep("payment")}>
+                    <span>Back</span>
+                  </button>
+                  <button className="button button-primary" type="button" onClick={completePurchase}>
+                    <span>Complete purchase</span>
+                    <ArrowIcon />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside className="checkout-summary">
+            <span>Summary</span>
+            <div className="summary-lines">
+              {cartItems.map((item) => {
+                const product = getProduct(item.sku);
+                if (!product) return null;
+                return (
+                  <div className="summary-line" key={item.key}>
+                    <img src={product.image} alt="" aria-hidden="true" style={{ objectPosition: product.position }} />
+                    <span>
+                      <strong>{product.name}</strong>
+                      <small>{item.quantity} x {item.size} / {item.color}</small>
+                    </span>
+                    <b>{formatPrice(parsePrice(product.price) * item.quantity)}</b>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="promo-row">
+              <input
+                value={promoInput}
+                onChange={(event) => setPromoInput(event.target.value)}
+                placeholder="SIGNAL10"
+                aria-label="Promo code"
+              />
+              <button type="button" onClick={applyPromo}>Apply</button>
+            </div>
+            {promoMessage && <p className={promoCode ? "promo-message is-valid" : "promo-message"}>{promoMessage}</p>}
+            <CommerceTotals totals={totals} />
+            <div className="summary-edit">
+              {cartItems.map((item) => (
+                <CartLineItem
+                  item={item}
+                  key={item.key}
+                  updateCartQuantity={updateCartQuantity}
+                  removeCartItem={removeCartItem}
+                />
+              ))}
+            </div>
+          </aside>
+        </section>
+      </main>
+      <Footer page="checkout" />
+    </div>
+  );
+}
+
+function OrderConfirmationPage({ cartCount = 0, order }) {
+  return (
+    <div className="shop-shell order-shell" id="top">
+      <Header page="order" cartCount={cartCount} />
+      <main className="order-page" aria-labelledby="order-heading">
+        {!order ? (
+          <section className="commerce-empty">
+            <span>ORDER</span>
+            <h1>No active order</h1>
+            <p>There is no completed order stored in this preview session.</p>
+            <a className="button button-primary" href="/shop">
+              <span>Shop SS26</span>
+              <ArrowIcon />
+            </a>
+          </section>
+        ) : (
+          <section className="order-confirmation">
+            <div className="order-mark" aria-hidden="true">+</div>
+            <span>Order confirmed</span>
+            <h1 id="order-heading">Signal Received</h1>
+            <p>
+              Order {order.id} is confirmed for {order.customer.firstName || "UNUSUAL"} {order.customer.lastName || "Customer"}.
+              A release note has been sent to {order.customer.email}.
+            </p>
+            <div className="order-grid">
+              <div>
+                <h2>Next movement</h2>
+                <ol>
+                  <li>Order confirmation email sent.</li>
+                  <li>Pieces move to packing within 24 hours.</li>
+                  <li>{order.shipping.name} delivery: {order.shipping.eta}.</li>
+                </ol>
+              </div>
+              <div>
+                <h2>Order total</h2>
+                <CommerceTotals totals={order.totals} />
+              </div>
+            </div>
+            <div className="order-items">
+              {order.items.map((item) => {
+                const product = getProduct(item.sku);
+                if (!product) return null;
+                return (
+                  <article key={item.key}>
+                    <img src={product.image} alt={product.alt} style={{ objectPosition: product.position }} />
+                    <span>
+                      <strong>{product.name}</strong>
+                      <small>{item.quantity} x {item.size} / {item.color}</small>
+                    </span>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="order-actions">
+              <a className="button button-primary" href="/shop">
+                <span>Continue shopping</span>
+                <ArrowIcon />
+              </a>
+              <a className="button button-secondary" href="/">
+                <span>Back home</span>
+                <ArrowIcon />
+              </a>
+            </div>
+          </section>
+        )}
+      </main>
+      <Footer page="order" />
+    </div>
+  );
+}
+
+function ReleaseRack({ addToCart, cartCount = 0 }) {
   const [selectedSizes, setSelectedSizes] = useState(() =>
     Object.fromEntries(releaseProducts.map((product) => [product.sku, product.sizes[1] ?? product.sizes[0]])),
   );
   const [selectedColors, setSelectedColors] = useState(() =>
     Object.fromEntries(releaseProducts.map((product) => [product.sku, product.colors[0].name])),
   );
-  const [bagCount, setBagCount] = useState(0);
   const [addedSku, setAddedSku] = useState("");
 
   const selectSize = (sku, size) => {
@@ -493,7 +1299,12 @@ function ReleaseRack() {
   };
 
   const addToBag = (sku) => {
-    setBagCount((count) => count + 1);
+    addToCart({
+      sku,
+      size: selectedSizes[sku],
+      color: selectedColors[sku],
+      quantity: 1,
+    });
     setAddedSku(sku);
 
     window.setTimeout(() => {
@@ -514,7 +1325,7 @@ function ReleaseRack() {
           </div>
           <div className="release-meta" aria-label="Release rack status">
             <span>SS26 / New Arrivals</span>
-            <strong>{String(bagCount).padStart(2, "0")} in bag</strong>
+            <strong>{String(cartCount).padStart(2, "0")} in bag</strong>
           </div>
         </div>
 
@@ -870,7 +1681,7 @@ function DropIndex() {
                     ))}
                   </ul>
                   <div className="look-actions">
-                    <a className="button button-primary" href="#bag">
+                    <a className="button button-primary" href={`/shop?category=${slugify(look.category)}`}>
                       <span>Shop this look</span>
                       <ArrowIcon />
                     </a>
@@ -925,7 +1736,7 @@ function CategoryRail({ activeIndex, onSelectSlide }) {
   );
 }
 
-function Hero() {
+function Hero({ cartCount = 0 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState("next");
   const [isPaused, setIsPaused] = useState(false);
@@ -982,7 +1793,7 @@ function Hero() {
 
   return (
     <main id="top" className="hero-shell">
-      <Header />
+      <Header cartCount={cartCount} />
 
       <section
         className="hero"
@@ -1179,18 +1990,123 @@ function Footer({ page = "home" }) {
 }
 
 export default function App() {
+  const [cartItems, setCartItems] = useState(() => readStoredJson(CART_STORAGE_KEY, []));
+  const [lastOrder, setLastOrder] = useState(() => readStoredJson(ORDER_STORAGE_KEY, null));
   const pathname = window.location.pathname.replace(/\/$/, "") || "/";
   const page = pathname === "/shop" ? "shop" : "home";
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    if (lastOrder) {
+      window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(lastOrder));
+    }
+  }, [lastOrder]);
+
+  const addToCart = ({ sku, size, color, quantity = 1 }) => {
+    setCartItems((current) => {
+      const key = cartLineKey({ sku, size, color });
+      const existing = current.find((item) => item.key === key);
+      let nextCart;
+
+      if (existing) {
+        nextCart = current.map((item) =>
+          item.key === key ? { ...item, quantity: Math.min(9, item.quantity + quantity) } : item,
+        );
+      } else {
+        nextCart = [...current, { key, sku, size, color, quantity }];
+      }
+
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart));
+      return nextCart;
+    });
+  };
+
+  const updateCartQuantity = (key, quantity) => {
+    setCartItems((current) => {
+      const nextCart =
+        quantity <= 0
+          ? current.filter((item) => item.key !== key)
+          : current.map((item) => (item.key === key ? { ...item, quantity: Math.min(9, quantity) } : item));
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart));
+      return nextCart;
+    });
+  };
+
+  const removeCartItem = (key) => {
+    setCartItems((current) => {
+      const nextCart = current.filter((item) => item.key !== key);
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart));
+      return nextCart;
+    });
+  };
+
+  const placeOrder = ({ form, shipping, promoCode, totals }) => {
+    const order = {
+      id: `UN-${Date.now().toString().slice(-6)}`,
+      createdAt: new Date().toISOString(),
+      customer: {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+      },
+      shipping,
+      promoCode,
+      totals,
+      items: cartItems,
+    };
+
+    setLastOrder(order);
+    setCartItems([]);
+    window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([]));
+    return order;
+  };
+
+  if (pathname.startsWith("/product/")) {
+    const sku = decodeURIComponent(pathname.replace("/product/", ""));
+    return <ProductPage sku={sku} cartCount={cartCount} addToCart={addToCart} />;
+  }
+
+  if (pathname === "/bag") {
+    return (
+      <CartPage
+        cartItems={cartItems}
+        cartCount={cartCount}
+        updateCartQuantity={updateCartQuantity}
+        removeCartItem={removeCartItem}
+      />
+    );
+  }
+
+  if (pathname === "/checkout") {
+    return (
+      <CheckoutPage
+        cartItems={cartItems}
+        cartCount={cartCount}
+        updateCartQuantity={updateCartQuantity}
+        removeCartItem={removeCartItem}
+        placeOrder={placeOrder}
+      />
+    );
+  }
+
+  if (pathname === "/order-confirmed") {
+    return <OrderConfirmationPage cartCount={cartCount} order={lastOrder} />;
+  }
 
   if (page === "shop") {
-    return <ShopPage />;
+    return <ShopPage cartCount={cartCount} addToCart={addToCart} />;
   }
 
   return (
     <>
-      <Hero />
+      <Hero cartCount={cartCount} />
       <DropIndex />
-      <ReleaseRack />
+      <ReleaseRack addToCart={addToCart} cartCount={cartCount} />
       <UnusualCode />
       <SeenInMotion />
       <Footer />
