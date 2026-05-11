@@ -742,7 +742,9 @@ svg {
 .product-swatches button:focus-visible,
 .product-add:focus-visible,
 .code-signup input:focus-visible,
-.code-signup button:focus-visible {
+.code-signup button:focus-visible,
+.motion-buttons button:focus-visible,
+.motion-cta:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 3px;
 }
@@ -1853,6 +1855,377 @@ svg {
   animation: codeTicker 30s linear infinite;
 }
 
+.motion-lookbook {
+  position: relative;
+  overflow: clip;
+  padding: clamp(4.6rem, 6vw, 7rem) 0 clamp(5rem, 7vw, 8rem);
+  border-top: 1px solid rgba(255, 250, 240, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.025), transparent 18%),
+    repeating-linear-gradient(90deg, rgba(255, 250, 240, 0.032) 0 1px, transparent 1px 90px),
+    #030303;
+  color: var(--white);
+  isolation: isolate;
+}
+
+.motion-lookbook::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 250, 240, 0.035) 0 1px, transparent 1px 7px),
+    radial-gradient(circle at 78% 18%, rgba(219, 46, 40, 0.12), transparent 22%);
+  content: "";
+  opacity: 0.74;
+  pointer-events: none;
+}
+
+.motion-frame {
+  width: min(100% - 72px, 1760px);
+  margin: 0 auto;
+}
+
+.motion-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr) auto;
+  gap: clamp(1.8rem, 4vw, 5rem);
+  align-items: end;
+  padding-bottom: clamp(1.25rem, 2vw, 2rem);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.2);
+}
+
+.motion-head > div > p {
+  margin: 0 0 0.8rem;
+  color: var(--red);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.motion-head h2 {
+  max-width: 10ch;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.92);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(5.4rem, 9vw, 13.2rem);
+  font-weight: 950;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.motion-summary {
+  display: grid;
+  grid-template-columns: 2px minmax(0, 1fr);
+  gap: 1.6rem;
+  max-width: 25ch;
+  margin: 0 0 0.4rem;
+  color: rgba(255, 250, 240, 0.68);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: clamp(0.94rem, 0.82vw, 1.18rem);
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.motion-summary::before {
+  min-height: 3rem;
+  background: rgba(255, 250, 240, 0.58);
+  content: "";
+}
+
+.motion-frame-count {
+  display: inline-grid;
+  grid-template-columns: auto repeat(5, 22px);
+  gap: 0.6rem;
+  align-items: center;
+  align-self: start;
+  color: rgba(255, 250, 240, 0.72);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.motion-frame-count i {
+  height: 2px;
+  background: rgba(255, 250, 240, 0.28);
+}
+
+.motion-frame-count .is-active {
+  background: var(--red);
+}
+
+.motion-rail {
+  display: grid;
+  grid-auto-columns: clamp(268px, 19.5vw, 360px);
+  grid-auto-flow: column;
+  gap: 8px;
+  align-items: start;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 0 0 2.4rem;
+  margin-top: clamp(1.6rem, 2.6vw, 2.8rem);
+  cursor: grab;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.motion-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.motion-card {
+  position: relative;
+  min-height: clamp(460px, 43vw, 680px);
+  overflow: clip;
+  border: 1px solid rgba(255, 250, 240, 0.18);
+  background: #12110f;
+  scroll-snap-align: start;
+  animation: motionFrameReveal 780ms var(--ease-out) both;
+  animation-delay: calc(100ms + (var(--motion-index) * 80ms));
+  isolation: isolate;
+}
+
+.motion-card:nth-child(even) {
+  margin-top: 1.35rem;
+}
+
+.motion-card img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.05) brightness(0.8);
+  transform: scale(1.02);
+  transition:
+    filter 420ms var(--ease-out),
+    transform 620ms var(--ease-out);
+}
+
+.motion-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 34%, rgba(0, 0, 0, 0.78)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 58%);
+  content: "";
+  pointer-events: none;
+}
+
+.motion-card:hover img {
+  filter: saturate(1.04) contrast(1.08) brightness(0.88);
+  transform: scale(1.075);
+}
+
+.motion-card-mark {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: grid;
+  gap: 0.6rem;
+  color: rgba(255, 250, 240, 0.58);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.motion-card-mark strong {
+  color: rgba(255, 250, 240, 0.78);
+  font-size: clamp(1rem, 1.1vw, 1.4rem);
+}
+
+.motion-card-mark em {
+  writing-mode: vertical-rl;
+  font-style: normal;
+  letter-spacing: 0.14em;
+}
+
+.motion-plus {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--red);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.motion-card-copy {
+  position: absolute;
+  right: 1.15rem;
+  bottom: 1.15rem;
+  left: 1.15rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem 1rem;
+  align-items: end;
+}
+
+.motion-card-copy span {
+  grid-column: 1 / -1;
+  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.motion-card-copy h3 {
+  margin: 0;
+  color: rgba(255, 250, 240, 0.9);
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(1.7rem, 2vw, 2.7rem);
+  font-weight: 950;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.motion-card-copy p {
+  grid-column: 1 / -1;
+  max-width: 27ch;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.62);
+  font-size: 0.86rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+.motion-card-copy svg {
+  width: 28px;
+  height: 16px;
+  fill: none;
+  stroke: rgba(255, 250, 240, 0.86);
+  stroke-width: 1.8;
+}
+
+.motion-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px) minmax(280px, 0.56fr) auto;
+  gap: clamp(1.2rem, 2vw, 2rem);
+  align-items: center;
+  padding-top: clamp(1.35rem, 2.4vw, 2.4rem);
+  border-top: 1px solid rgba(255, 250, 240, 0.2);
+}
+
+.motion-progress {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  color: rgba(255, 250, 240, 0.78);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.motion-progress div {
+  position: relative;
+  height: 2px;
+  background: rgba(255, 250, 240, 0.2);
+}
+
+.motion-progress i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--red);
+  transform: scaleX(var(--motion-progress));
+  transform-origin: left;
+  transition: transform 160ms linear;
+}
+
+.motion-cta {
+  min-width: 0;
+  border-color: rgba(255, 250, 240, 0.72);
+  background: transparent;
+  color: var(--red);
+}
+
+.motion-cta:hover,
+.motion-cta:focus-visible {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--white);
+}
+
+.motion-controls > p {
+  margin: 0;
+  color: rgba(255, 250, 240, 0.52);
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 760;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.motion-buttons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.7rem;
+  color: rgba(255, 250, 240, 0.58);
+}
+
+.motion-buttons > span {
+  margin-right: 0.35rem;
+  font-family:
+    "Courier New", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.motion-buttons button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 250, 240, 0.28);
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 250, 240, 0.86);
+  cursor: pointer;
+  transition:
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+
+.motion-buttons button:first-of-type svg {
+  transform: rotate(180deg);
+}
+
+.motion-buttons button:hover {
+  background: rgba(255, 250, 240, 0.9);
+  color: #050504;
+  transform: translateY(-2px);
+}
+
+.motion-buttons svg {
+  width: 24px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
 @keyframes pageTint {
   from {
     background-color: #f8f5ed;
@@ -2200,6 +2573,19 @@ svg {
   }
 }
 
+@keyframes motionFrameReveal {
+  from {
+    opacity: 0;
+    translate: 24px 0;
+    clip-path: inset(0 16% 0 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0);
+  }
+}
+
 @media (max-width: 980px) {
   .hero-shell {
     background: var(--paper);
@@ -2410,6 +2796,35 @@ svg {
 
   .code-ticker {
     font-size: 3.7rem;
+  }
+
+  .motion-frame {
+    width: min(100% - 36px, 760px);
+  }
+
+  .motion-head {
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+  }
+
+  .motion-summary {
+    max-width: 34ch;
+  }
+
+  .motion-frame-count {
+    justify-self: start;
+  }
+
+  .motion-rail {
+    grid-auto-columns: minmax(300px, 43vw);
+  }
+
+  .motion-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .motion-buttons {
+    justify-content: start;
   }
 }
 
@@ -2691,6 +3106,66 @@ svg {
 
   .code-ticker {
     font-size: 2.85rem;
+  }
+
+  .motion-lookbook {
+    padding: 3.6rem 0 4.4rem;
+  }
+
+  .motion-frame {
+    width: min(100% - 28px, 460px);
+  }
+
+  .motion-head h2 {
+    font-size: clamp(4.2rem, 21vw, 6.8rem);
+  }
+
+  .motion-summary {
+    grid-template-columns: 1px minmax(0, 1fr);
+    gap: 1rem;
+    font-size: 0.88rem;
+  }
+
+  .motion-frame-count {
+    grid-template-columns: auto repeat(5, 16px);
+    font-size: 0.72rem;
+  }
+
+  .motion-rail {
+    grid-auto-columns: minmax(258px, 82vw);
+    margin-inline: -14px;
+    padding-inline: 14px;
+    scroll-padding-inline: 14px;
+  }
+
+  .motion-card {
+    min-height: 430px;
+  }
+
+  .motion-card:nth-child(even) {
+    margin-top: 0.9rem;
+  }
+
+  .motion-card-copy h3 {
+    font-size: 2rem;
+  }
+
+  .motion-progress {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .motion-cta {
+    width: 100%;
+  }
+
+  .motion-buttons {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    width: 100%;
+  }
+
+  .motion-buttons > span {
+    margin-right: 0;
   }
 }
 

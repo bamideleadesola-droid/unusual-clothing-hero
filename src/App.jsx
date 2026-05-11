@@ -187,6 +187,49 @@ const manifestoLines = [
   },
 ];
 
+const motionLooks = [
+  {
+    number: "01",
+    title: "Outer shell",
+    copy: "A black city shell with the name held large across the back.",
+    image: "/assets/unusual-drop-outerwear.png",
+    alt: "Model in black outerwear with UNUSUAL branding.",
+    position: "50% 30%",
+  },
+  {
+    number: "02",
+    title: "Redline jersey",
+    copy: "Signal-red mesh, black cargo weight, and front-name tension.",
+    image: "/assets/unusual-drop-jersey.png",
+    alt: "Model in red and black UNUSUAL jersey.",
+    position: "48% 30%",
+  },
+  {
+    number: "03",
+    title: "Carry system",
+    copy: "Utility bag, hard gloves, and a kit built for movement.",
+    image: "/assets/unusual-drop-accessories.png",
+    alt: "Model wearing black technical layers with a branded utility bag.",
+    position: "50% 34%",
+  },
+  {
+    number: "04",
+    title: "Washed name",
+    copy: "Charcoal cotton, worn texture, and a softened logo hit.",
+    image: "/assets/unusual-drop-knit.png",
+    alt: "Model in washed charcoal UNUSUAL hoodie.",
+    position: "54% 32%",
+  },
+  {
+    number: "05",
+    title: "Night trouser",
+    copy: "Wide cargo volume with reflective tape and low-light stance.",
+    image: "/assets/unusual-product-trouser.png",
+    alt: "Oversized black wide cargo trousers with UNUSUAL branding.",
+    position: "50% 46%",
+  },
+];
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 28 16" focusable="false">
@@ -327,6 +370,109 @@ function ReleaseRack() {
 
         <div className="rack-progress" aria-hidden="true">
           <span />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SeenInMotion() {
+  const railRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  const [activeFrame, setActiveFrame] = useState(0);
+
+  const updateProgress = () => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    const nextProgress = maxScroll > 0 ? rail.scrollLeft / maxScroll : 0;
+    const boundedProgress = Math.min(1, Math.max(0, nextProgress));
+
+    setProgress(boundedProgress);
+    setActiveFrame(Math.round(boundedProgress * (motionLooks.length - 1)));
+  };
+
+  const scrollFrame = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const firstFrame = rail.querySelector(".motion-card");
+    const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap || "0");
+    const distance = (firstFrame?.getBoundingClientRect().width ?? rail.clientWidth * 0.72) + gap;
+
+    rail.scrollBy({ left: direction * distance, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    updateProgress();
+    window.addEventListener("resize", updateProgress);
+    return () => window.removeEventListener("resize", updateProgress);
+  }, []);
+
+  return (
+    <section className="motion-lookbook" id="archive" aria-labelledby="motion-heading">
+      <div className="motion-frame">
+        <div className="motion-head">
+          <div>
+            <p>// LOOKBOOK_SEEN_IN_MOTION</p>
+            <h2 id="motion-heading">Seen In Motion</h2>
+          </div>
+          <p className="motion-summary">A moving lookbook for the unnamed uniform</p>
+          <div className="motion-frame-count" aria-hidden="true">
+            <span>Frames 05</span>
+            {motionLooks.map((look, index) => (
+              <i className={activeFrame === index ? "is-active" : ""} key={look.number} />
+            ))}
+          </div>
+        </div>
+
+        <div className="motion-rail" ref={railRef} onScroll={updateProgress} aria-label="Seen In Motion lookbook">
+          {motionLooks.map((look, index) => (
+            <article className="motion-card" key={look.number} style={{ "--motion-index": index }}>
+              <img src={look.image} alt={look.alt} style={{ objectPosition: look.position }} />
+              <span className="motion-card-mark" aria-hidden="true">
+                <strong>{look.number}</strong>
+                <em>U/SS26</em>
+              </span>
+              <span className="motion-plus" aria-hidden="true">
+                +
+              </span>
+              <div className="motion-card-copy">
+                <span>Look {look.number}</span>
+                <h3>{look.title}</h3>
+                <p>{look.copy}</p>
+                <ArrowIcon />
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="motion-controls">
+          <div className="motion-progress" aria-label={`Lookbook frame ${activeFrame + 1} of ${motionLooks.length}`}>
+            <span>{String(activeFrame + 1).padStart(2, "0")}</span>
+            <div>
+              <i style={{ "--motion-progress": Math.max(0.08, progress) }} />
+            </div>
+            <span>{String(motionLooks.length).padStart(2, "0")}</span>
+          </div>
+
+          <a className="button motion-cta" href="#shop">
+            <span>View full lookbook</span>
+            <ArrowIcon />
+          </a>
+
+          <p>Five looks. One direction. Built for movement. Made to disappear.</p>
+
+          <div className="motion-buttons" aria-label="Lookbook controls">
+            <span>Drag to explore</span>
+            <button type="button" onClick={() => scrollFrame(-1)} aria-label="Previous lookbook frame">
+              <ArrowIcon />
+            </button>
+            <button type="button" onClick={() => scrollFrame(1)} aria-label="Next lookbook frame">
+              <ArrowIcon />
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -726,6 +872,7 @@ export default function App() {
       <DropIndex />
       <ReleaseRack />
       <UnusualCode />
+      <SeenInMotion />
     </>
   );
 }
