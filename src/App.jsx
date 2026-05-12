@@ -2111,37 +2111,6 @@ function DropIndex() {
   );
 }
 
-function CategoryRail({ activeIndex, onSelectSlide }) {
-  return (
-    <section className="category-rail" aria-label="Shop categories">
-      {slides.map((slide, index) => (
-        <button
-          className="category-card"
-          type="button"
-          key={slide.category}
-          aria-pressed={activeIndex === index}
-          onClick={() => onSelectSlide(index)}
-        >
-          <img
-            src={slide.categoryImage ?? slide.image}
-            alt=""
-            aria-hidden="true"
-            style={{ objectPosition: slide.categoryPosition ?? slide.position }}
-          />
-          <span className="category-shade" aria-hidden="true" />
-          <span className="category-content">
-            <span>
-              <strong>{slide.category}</strong>
-              <small>{slide.categoryCopy}</small>
-            </span>
-            <ArrowIcon />
-          </span>
-        </button>
-      ))}
-    </section>
-  );
-}
-
 function Hero({ cartCount = 0 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState("next");
@@ -2284,7 +2253,6 @@ function Hero({ cartCount = 0 }) {
         </div>
       </section>
 
-      <CategoryRail activeIndex={activeIndex} onSelectSlide={showSlide} />
     </main>
   );
 }
