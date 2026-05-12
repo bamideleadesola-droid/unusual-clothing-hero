@@ -4293,7 +4293,6 @@ svg {
 
 .waitlist-hero p,
 .waitlist-entry p,
-.waitlist-signal-grid p,
 .waitlist-toggle-list small,
 .waitlist-confirm p {
   margin: 0;
@@ -4469,7 +4468,6 @@ svg {
   animation: waitlistFloat 7.5s var(--ease-out) 800ms infinite alternate;
 }
 
-.waitlist-signal-grid,
 .waitlist-flow,
 .waitlist-field-grid,
 .waitlist-interest-list,
@@ -4480,27 +4478,6 @@ svg {
   gap: 10px;
 }
 
-.waitlist-signal-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.waitlist-signal-grid article {
-  display: grid;
-  align-content: space-between;
-  min-height: 240px;
-  padding: 1rem;
-  border: 1px solid rgba(255, 250, 240, 0.34);
-  background: rgba(255, 250, 240, 0.04);
-}
-
-.waitlist-signal-grid span {
-  color: var(--red);
-  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: clamp(3rem, 4vw, 6.2rem);
-  line-height: 0.82;
-}
-
-.waitlist-signal-grid h2,
 .waitlist-panel-head h2 {
   margin: 0;
   color: var(--white);
@@ -7438,10 +7415,6 @@ svg {
     min-height: 640px;
   }
 
-  .waitlist-signal-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .waitlist-confirm {
     position: static;
   }
@@ -8051,7 +8024,6 @@ svg {
   .policy-block-grid,
   .support-product-strip,
   .help-topic-grid,
-  .waitlist-signal-grid,
   .waitlist-field-grid,
   .waitlist-interest-list,
   .waitlist-mini-rail,

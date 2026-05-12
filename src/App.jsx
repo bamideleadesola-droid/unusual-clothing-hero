@@ -3457,20 +3457,6 @@ function WaitlistPage({ cartCount = 0, waitlist = defaultWaitlist, joinWaitlist 
           </div>
         </section>
 
-        <section className="waitlist-signal-grid" aria-label="Waitlist access">
-          {[
-            ["01", "Early signal", "Private list gets the release window before the shop opens wide."],
-            ["02", "Fit notes", "Sizing direction lands with the drop so the first choice is sharper."],
-            ["03", "Restock lock", "Low-run pieces send a quiet alert when sizes return."],
-          ].map(([number, title, copy]) => (
-            <article key={title}>
-              <span>{number}</span>
-              <h2>{title}</h2>
-              <p>{copy}</p>
-            </article>
-          ))}
-        </section>
-
         <section className="waitlist-flow" aria-label="Waitlist details">
           <form className="waitlist-profile" onSubmit={handleJoin}>
             <div className="waitlist-panel-head">
